@@ -44,6 +44,42 @@ String formatarDuracao(Duration duracao) {
   return '${minutos ~/ 60} h ${(minutos % 60).toString().padLeft(2, '0')} min';
 }
 
+/// Nome do equipamento do catálogo: "maquina" → "Máquina".
+String nomeEquipamento(String equipamento) => switch (equipamento) {
+  'barra' => 'Barra',
+  'halteres' => 'Halteres',
+  'maquina' => 'Máquina',
+  'polia' => 'Polia',
+  'barra-fixa' => 'Barra fixa',
+  'nenhum' => 'Peso do corpo',
+  _ => equipamento,
+};
+
+/// Nome do padrão de movimento do catálogo: "puxar-vertical" → "Puxar na
+/// vertical".
+String nomePadrao(String padrao) => switch (padrao) {
+  'empurrar-horizontal' => 'Empurrar na horizontal',
+  'empurrar-vertical' => 'Empurrar na vertical',
+  'aducao-horizontal' => 'Adução horizontal do ombro',
+  'abducao-ombro' => 'Abdução do ombro',
+  'extensao-cotovelo' => 'Extensão do cotovelo',
+  'flexao-cotovelo' => 'Flexão do cotovelo',
+  'puxar-vertical' => 'Puxar na vertical',
+  'puxar-horizontal' => 'Puxar na horizontal',
+  'agachar' => 'Agachar',
+  'extensao-joelho' => 'Extensão do joelho',
+  'flexao-joelho' => 'Flexão do joelho',
+  'dobrar-quadril' => 'Dobrar o quadril',
+  'avanco' => 'Avanço',
+  'flexao-plantar' => 'Flexão plantar',
+  'anti-extensao' => 'Antiextensão do tronco',
+  'flexao-tronco' => 'Flexão do tronco',
+  _ => padrao,
+};
+
+/// 1RM estimado arredondado a meio quilo: 82.33 → "82,5".
+String formatarUmRm(double kg) => formatarKg((kg * 2).round() / 2);
+
 /// "4 × 6–10", ou "3 × 30–45 s" para exercícios por tempo.
 String formatarPrescricao(ItemPlano item, Exercicio exercicio) {
   final faixa = item.repsMin == item.repsMax

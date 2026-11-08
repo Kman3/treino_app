@@ -186,6 +186,13 @@ class AjustesExecucao extends Table with ColunasSync {
   BoolColumn get novoZeroRespondido =>
       boolean().withDefault(const Constant(false))();
 
+  /// O exercício saiu deste treino ("Senti dor" → tirar do treino). As
+  /// séries já feitas ficam. Versão 4.
+  BoolColumn get removido => boolean().withDefault(const Constant(false))();
+
+  /// A pessoa registrou dor neste exercício durante o treino. Versão 4.
+  BoolColumn get dor => boolean().withDefault(const Constant(false))();
+
   @override
   Set<Column> get primaryKey => {id};
 
@@ -218,7 +225,11 @@ class Preferencias extends Table with ColunasSync {
   Set<Column> get primaryKey => {id};
 }
 
-/// Origem: botão "Ocupado".
+/// Origem: botão "Ocupado" (ou "Senti dor" → trocar por outro).
+///
+/// Escopo `sessao`: vale só no [treinoId]. Escopo `sempre`: o item do plano
+/// passa a usar o exercício novo, e a linha guarda o que havia antes para
+/// desfazer.
 @DataClassName('Substituicao')
 class Substituicoes extends Table with ColunasSync {
   TextColumn get id => text()();
@@ -230,6 +241,15 @@ class Substituicoes extends Table with ColunasSync {
   TextColumn get exercicioNovoId => text().references(Exercicios, #id)();
   TextColumn get escopo =>
       text().check(escopo.isIn(EscopoSubstituicao.todos))();
+
+  /// Treino em que a troca vale (escopo `sessao`). Versão 4.
+  TextColumn get treinoId => text().nullable().references(Treinos, #id)();
+
+  /// Carga planejada para o exercício novo. Versão 4.
+  RealColumn get cargaKg => real().nullable()();
+
+  /// Carga que o item do plano tinha antes da troca `sempre`. Versão 4.
+  RealColumn get cargaOriginalKg => real().nullable()();
 
   @override
   Set<Column> get primaryKey => {id};

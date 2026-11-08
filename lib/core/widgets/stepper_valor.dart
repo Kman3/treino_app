@@ -182,9 +182,7 @@ class _DialogoNumeroState extends State<_DialogoNumero> {
       content: TextField(
         controller: _controle,
         autofocus: true,
-        keyboardType: TextInputType.numberWithOptions(
-          decimal: widget.decimais,
-        ),
+        keyboardType: TextInputType.numberWithOptions(decimal: widget.decimais),
         inputFormatters: [
           FilteringTextInputFormatter.allow(
             RegExp(widget.decimais ? r'[0-9.,]' : r'[0-9]'),

@@ -11,8 +11,9 @@ abstract final class Cores {
   /// Botões −/+, chips, divisórias.
   static const ferro700 = Color(0xFF23262B);
 
-  /// Rótulos e texto secundário.
-  static const ferro400 = Color(0xFF878C93);
+  /// Rótulos e texto secundário. Clareado na etapa 4 (era #878C93) para
+  /// passar em AA (4,5:1) também sobre o Ferro 700.
+  static const ferro400 = Color(0xFF8B8F96);
 
   /// Texto principal e números.
   static const giz = Color(0xFFEDEAE3);
@@ -26,8 +27,9 @@ abstract final class Cores {
   /// Valor editado, diferença vs. plano, sugestão de ajuste.
   static const atencao = Color(0xFFF2B33D);
 
-  /// Registro de dor.
-  static const dor = Color(0xFFE5484D);
+  /// Registro de dor e excluir. Clareado na etapa 4 (era #E5484D) para passar
+  /// em AA sobre o Ferro 800 e o Ferro 700.
+  static const dor = Color(0xFFE96569);
 }
 
 abstract final class Raios {

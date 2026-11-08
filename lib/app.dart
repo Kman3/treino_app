@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
+import 'core/marca.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/barra_inferior.dart';
-import 'core/widgets/tela_em_construcao.dart';
+import 'features/evolucao/tela_evolucao.dart';
 import 'features/execucao/tela_resumo.dart';
 import 'features/execucao/tela_serie.dart';
+import 'features/exercicio/tela_exercicio.dart';
 import 'features/hoje/tela_hoje.dart';
 import 'features/perfil/tela_perfil.dart';
 
@@ -23,6 +25,14 @@ GoRouter criarRouter() {
         path: '/resumo/:treinoId',
         builder: (_, state) =>
             TelaResumo(treinoId: state.pathParameters['treinoId']!),
+      ),
+      // Tela 03, por cima de qualquer aba; `?item=` quando vem do plano.
+      GoRoute(
+        path: '/exercicio/:exercicioId',
+        builder: (_, state) => TelaExercicio(
+          exercicioId: state.pathParameters['exercicioId']!,
+          itemPlanoId: state.uri.queryParameters['item'],
+        ),
       ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navegacao) => Scaffold(
@@ -45,10 +55,7 @@ GoRouter criarRouter() {
             routes: [
               GoRoute(
                 path: '/evolucao',
-                builder: (_, _) => const TelaEmConstrucao(
-                  titulo: 'Evolução',
-                  etapa: 'etapa 4',
-                ),
+                builder: (_, _) => const TelaEvolucao(),
               ),
             ],
           ),
@@ -82,7 +89,8 @@ class _TreinoAppState extends State<TreinoApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp.router(
-      title: 'Treino',
+      // Nome que o Android mostra na lista de apps abertos.
+      title: Marca.nome,
       debugShowCheckedModeBanner: false,
       theme: temaFerroGiz(),
       routerConfig: _router,

@@ -6,12 +6,15 @@
     <uses-permission
         android:name="android.permission.SCHEDULE_EXACT_ALARM"
         android:maxSdkVersion="32" />
+    <!-- Nome completo nas Configurações do Android; "Caramelo" embaixo do
+         ícone, onde o nome inteiro seria cortado. -->
     <application
-        android:label="Treino"
+        android:label="Caramelo Mutante"
         android:name="${applicationName}"
         android:icon="@mipmap/ic_launcher">
         <activity
             android:name=".MainActivity"
+            android:label="Caramelo"
             android:exported="true"
             android:launchMode="singleTop"
             android:taskAffinity=""

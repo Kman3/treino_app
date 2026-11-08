@@ -168,7 +168,11 @@ class _VistaDescansoState extends State<VistaDescanso> {
                 const SizedBox(height: Espacos.l),
                 Row(
                   mainAxisAlignment: MainAxisAlignment.center,
-                  children: [menos15, const SizedBox(width: Espacos.m), mais15],
+                  children: [
+                    menos15,
+                    const SizedBox(width: Espacos.m),
+                    mais15,
+                  ],
                 ),
                 const SizedBox(height: Espacos.l),
                 proxima,

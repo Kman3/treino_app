@@ -223,6 +223,30 @@ double novaBasePorUmRm({
   );
 }
 
+/// 1RM estimado pela fórmula de Epley. Com 1 rep, a própria carga é o máximo.
+double umRmEpley(double carga, int reps) =>
+    reps <= 1 ? carga : carga * (1 + reps / 30);
+
+/// Carga para começar um substituto que a pessoa nunca fez, a partir da carga
+/// do exercício trocado. Um halter costuma levar ~40% da carga da barra; os
+/// outros equipamentos ficam com a mesma carga. É só um ponto de partida: a
+/// tela pede para conferir.
+double cargaInicialSubstituto({
+  required double cargaOriginal,
+  required String equipamentoOriginal,
+  required String equipamentoNovo,
+  required double passoNovo,
+}) {
+  const porHalter = 0.4;
+  var carga = cargaOriginal;
+  if (equipamentoOriginal == 'barra' && equipamentoNovo == 'halteres') {
+    carga = cargaOriginal * porHalter;
+  } else if (equipamentoOriginal == 'halteres' && equipamentoNovo == 'barra') {
+    carga = cargaOriginal / porHalter;
+  }
+  return arredondarCarga(carga, equipamento: equipamentoNovo, passo: passoNovo);
+}
+
 /// Plano da série extra de aquecimento: ~70% da carga, reps do mínimo da faixa.
 PlanoDaSerie planoAquecimento({
   required double cargaBase,

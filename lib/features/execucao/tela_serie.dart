@@ -10,6 +10,7 @@ import '../../core/widgets/botao_brasa.dart';
 import '../progressao/progressao.dart';
 import 'estado_execucao.dart';
 import 'painel_alterar.dart';
+import 'painel_ocupado.dart';
 import 'sessao_treino_controller.dart';
 import 'tela_descanso.dart';
 
@@ -71,6 +72,7 @@ class _TelaSerieState extends ConsumerState<TelaSerie> {
                       estado: e,
                       aoPausar: _confirmarPausa,
                       aoEncerrar: () => _confirmarEncerrar(e),
+                      aoSentirDor: _acaoDor(e),
                     ),
                     Expanded(
                       child: VistaDescanso(
@@ -95,6 +97,7 @@ class _TelaSerieState extends ConsumerState<TelaSerie> {
                     estado: e,
                     aoPausar: _confirmarPausa,
                     aoEncerrar: () => _confirmarEncerrar(e),
+                    aoSentirDor: _acaoDor(e),
                   ),
                   Expanded(
                     child: posicao == null
@@ -196,7 +199,23 @@ class _TelaSerieState extends ConsumerState<TelaSerie> {
             color: posicao.aquecimento ? Cores.atencao : Cores.brasa,
           ),
         ),
-        const SizedBox(height: Espacos.xl),
+        if (item.original case final original?) ...[
+          const SizedBox(height: Espacos.xs),
+          Text(
+            'HOJE NO LUGAR DE ${original.nome.toUpperCase()}',
+            style: Textos.rotulo,
+          ),
+        ],
+        const SizedBox(height: Espacos.xs),
+        _AcoesExercicio(
+          aoOcupado: () => _ocupado(estado, item),
+          aoSobre: () {
+            // O aviso do topo cobriria o "Voltar" da tela 03.
+            ScaffoldMessenger.of(context).removeCurrentSnackBar();
+            context.push('/exercicio/${item.exercicio.id}');
+          },
+        ),
+        const SizedBox(height: Espacos.l),
         _NumerosGrandes(posicao: posicao, valores: valores),
         const SizedBox(height: Espacos.s),
         Text(
@@ -384,6 +403,130 @@ class _TelaSerieState extends ConsumerState<TelaSerie> {
             _controller.definirAquecimento(estado, item, ativo: !ativo),
       ),
     );
+  }
+
+  /// "⇄ Ocupado": troca o exercício só hoje ou para sempre no plano.
+  Future<void> _ocupado(EstadoExecucao estado, ItemComExercicio item) async {
+    final escolha = await abrirPainelOcupado(
+      context,
+      atual: item.exercicio,
+      cargaAtual: item.item.cargaPlanKg,
+      treinoId: estado.treino.id,
+      doPlano: item.original,
+    );
+    if (escolha == null || !mounted) return;
+    await _aplicarTroca(estado, item, escolha);
+  }
+
+  Future<void> _aplicarTroca(
+    EstadoExecucao estado,
+    ItemComExercicio item,
+    EscolhaTroca escolha, {
+    RegistroDor? dor,
+  }) async {
+    final deHoje = estado.trocaDo(item);
+    // Escolher o exercício do plano de volta só desfaz a troca de hoje.
+    if (deHoje != null && escolha.novo.id == deHoje.exercicioOriginalId) {
+      await _controller.desfazerTroca(deHoje);
+      if (!mounted) return;
+      _avisar(
+        'De volta ao ${escolha.novo.nome}',
+        duracao: const Duration(seconds: 3),
+      );
+      return;
+    }
+    final troca = await _controller.trocar(
+      estado,
+      item,
+      escolha.novo,
+      sempre: escolha.sempre,
+      cargaKg: escolha.cargaKg,
+    );
+    if (!mounted) return;
+    _avisar(
+      '${dor == null ? '' : 'Dor registrada. '}${escolha.novo.nome} '
+      '${escolha.sempre ? 'no plano' : 'hoje'}, no lugar de '
+      '${item.exercicio.nome}',
+      duracao: const Duration(seconds: 5),
+      acao: SnackBarAction(
+        label: 'Desfazer',
+        textColor: Cores.brasa,
+        onPressed: () async {
+          await _controller.desfazerTroca(troca);
+          if (dor != null) await _controller.desfazerDor(estado, dor);
+        },
+      ),
+    );
+  }
+
+  /// O exercício de que a pessoa pode estar sentindo dor: o da série que
+  /// abriu o descanso ou o da série atual. Nulo com o treino completo.
+  VoidCallback? _acaoDor(EstadoExecucao estado) {
+    final descanso = estado.serieDoDescanso;
+    final item = descanso == null
+        ? estado.atual?.item
+        : estado.itemDa(descanso);
+    if (item == null) return null;
+    return () => _sentiDor(estado, item);
+  }
+
+  /// "Senti dor": registra e tira o exercício do treino, ou troca por outro.
+  Future<void> _sentiDor(EstadoExecucao estado, ItemComExercicio item) async {
+    final acao = await showDialog<_AcaoDor>(
+      context: context,
+      builder: (context) => AlertDialog(
+        backgroundColor: Cores.ferro800,
+        title: Text('Dor no ${item.exercicio.nome}?', style: Textos.nome),
+        content: const Text(
+          'A dor fica registrada neste exercício. Não force: troque por outro '
+          'movimento ou siga o treino sem ele.',
+          style: Textos.corpo,
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Voltar'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, _AcaoDor.tirar),
+            child: const Text('Tirar do treino'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, _AcaoDor.trocar),
+            child: const Text('Trocar por outro'),
+          ),
+        ],
+      ),
+    );
+    if (acao == null || !mounted) return;
+
+    switch (acao) {
+      case _AcaoDor.tirar:
+        final registro = await _controller.sentiDor(estado, item, tirar: true);
+        if (!mounted) return;
+        _avisar(
+          'Dor registrada. ${item.exercicio.nome} saiu do treino de hoje',
+          duracao: const Duration(seconds: 5),
+          acao: SnackBarAction(
+            label: 'Desfazer',
+            textColor: Cores.brasa,
+            onPressed: () => _controller.desfazerDor(estado, registro),
+          ),
+        );
+      case _AcaoDor.trocar:
+        final escolha = await abrirPainelOcupado(
+          context,
+          atual: item.exercicio,
+          cargaAtual: item.item.cargaPlanKg,
+          treinoId: estado.treino.id,
+          doPlano: item.original,
+          titulo: 'DOR? TROQUE POR OUTRO',
+        );
+        if (escolha == null || !mounted) return;
+        final registro = await _controller.sentiDor(estado, item, tirar: false);
+        if (!mounted) return;
+        await _aplicarTroca(estado, item, escolha, dor: registro);
+    }
   }
 
   Future<void> _corrigir(ItemComExercicio item, Serie serie) async {
@@ -583,16 +726,57 @@ String _descrever(double? cargaKg, int reps, Exercicio exercicio) {
   }
 }
 
+enum _AcaoDor { tirar, trocar }
+
+/// "⇄ Ocupado" e "Sobre o exercício" (tela 03), logo abaixo do nome.
+class _AcoesExercicio extends StatelessWidget {
+  const _AcoesExercicio({required this.aoOcupado, required this.aoSobre});
+
+  final VoidCallback aoOcupado;
+  final VoidCallback aoSobre;
+
+  @override
+  Widget build(BuildContext context) {
+    final estilo = TextButton.styleFrom(
+      foregroundColor: Cores.giz,
+      minimumSize: const Size(48, 48),
+      padding: const EdgeInsets.symmetric(horizontal: Espacos.s),
+      textStyle: Textos.corpo.copyWith(fontWeight: FontWeight.w600),
+    );
+    return Wrap(
+      spacing: Espacos.s,
+      children: [
+        TextButton.icon(
+          style: estilo,
+          onPressed: aoOcupado,
+          icon: const Icon(Icons.swap_horiz, size: 20, color: Cores.ferro400),
+          label: const Text('Ocupado'),
+        ),
+        TextButton.icon(
+          style: estilo,
+          onPressed: aoSobre,
+          icon: const Icon(Icons.info_outline, size: 20, color: Cores.ferro400),
+          label: const Text('Sobre o exercício'),
+        ),
+      ],
+    );
+  }
+}
+
 class _Cabecalho extends StatelessWidget {
   const _Cabecalho({
     required this.estado,
     required this.aoPausar,
     required this.aoEncerrar,
+    required this.aoSentirDor,
   });
 
   final EstadoExecucao estado;
   final VoidCallback aoPausar;
   final VoidCallback aoEncerrar;
+
+  /// Nulo quando não há exercício a que a dor se refira.
+  final VoidCallback? aoSentirDor;
 
   @override
   Widget build(BuildContext context) {
@@ -600,6 +784,8 @@ class _Cabecalho extends StatelessWidget {
     final total = estado.sessao.itens.length;
     final percentual = formatarPercentual(estado.progresso);
     final volume = formatarVolume(estado.volumeKg);
+    final modo = estado.vinteMinutos ? ' · 20 MIN' : '';
+    final aoSentirDor = this.aoSentirDor;
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -616,8 +802,8 @@ class _Cabecalho extends StatelessWidget {
               Expanded(
                 child: Text(
                   atual == null
-                      ? 'TREINO ${estado.sessao.sessao.dia} · COMPLETO'
-                      : 'TREINO ${estado.sessao.sessao.dia} · '
+                      ? 'TREINO ${estado.sessao.sessao.dia}$modo · COMPLETO'
+                      : 'TREINO ${estado.sessao.sessao.dia}$modo · '
                             'EXERCÍCIO ${atual.indiceItem + 1} DE $total',
                   textAlign: TextAlign.center,
                   style: Textos.rotulo,
@@ -628,6 +814,11 @@ class _Cabecalho extends StatelessWidget {
                 color: Cores.ferro800,
                 icon: const Icon(Icons.more_horiz, color: Cores.giz),
                 itemBuilder: (_) => [
+                  if (aoSentirDor != null)
+                    PopupMenuItem(
+                      onTap: aoSentirDor,
+                      child: const Text('Senti dor', style: Textos.corpo),
+                    ),
                   PopupMenuItem(
                     onTap: aoEncerrar,
                     child: const Text('Encerrar treino', style: Textos.corpo),

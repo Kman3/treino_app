@@ -1,11 +1,11 @@
 {
-    "name": "treino_app",
-    "short_name": "treino_app",
+    "name": "Caramelo Mutante",
+    "short_name": "Caramelo",
     "start_url": ".",
     "display": "standalone",
-    "background_color": "#0175C2",
-    "theme_color": "#0175C2",
-    "description": "A new Flutter project.",
+    "background_color": "#0E0F11",
+    "theme_color": "#0E0F11",
+    "description": "Caramelo Mutante: treino e dieta personalizados.",
     "orientation": "portrait-primary",
     "prefer_related_applications": false,
     "icons": [

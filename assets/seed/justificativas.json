@@ -1,0 +1,99 @@
+{
+  "_leia": "Um texto por padrão de movimento (campo padrao_movimento do catálogo). Escrito pelo Claude em 08/11/2026 para revisão: confira cada fonte antes de mudar 'revisado' para true. Nível: alto = meta-análise ou revisão sistemática; moderado = ensaio controlado com medida de massa ou força; baixo = estudos de ativação muscular (EMG), revisão narrativa ou prática comum.",
+  "empurrar-horizontal": {
+    "texto": "Empurrar na horizontal treina peitoral, deltoide anterior e tríceps num só movimento e permite progredir a carga de forma estável. Exercícios multiarticulares como o supino deram ganhos de força e composição corporal pelo menos iguais aos de vários isolados com o mesmo volume. A flexão de braços, com ativação equivalente, deu ganhos de força parecidos com os do supino.",
+    "fonte": "Paoli A, et al. Front Physiol. 2017;8:1105 · Calatayud J, et al. J Strength Cond Res. 2015;29(1):246-53",
+    "nivel": "moderado",
+    "revisado": false
+  },
+  "aducao-horizontal": {
+    "texto": "Levar o braço para a linha do meio do corpo é a função principal do peitoral, com pouca participação do tríceps. Serve para somar volume ao peito com pouca fadiga nas articulações. O volume semanal por músculo é um dos fatores mais ligados ao ganho de massa.",
+    "fonte": "Schoenfeld BJ, Ogborn D, Krieger JW. J Sports Sci. 2017;35(11):1073-82",
+    "nivel": "moderado",
+    "revisado": false
+  },
+  "empurrar-vertical": {
+    "texto": "Empurrar acima da cabeça é o principal exercício para o deltoide anterior e também treina tríceps e os estabilizadores do tronco. Fazer sentado ou em pé, com barra ou halteres, muda a ativação dos ombros e a carga que dá para usar.",
+    "fonte": "Saeterbakken AH, Fimland MS. J Strength Cond Res. 2013;27(7):1824-31",
+    "nivel": "baixo",
+    "revisado": false
+  },
+  "abducao-ombro": {
+    "texto": "A elevação lateral isola o deltoide lateral, pouco recrutado nos supinos e desenvolvimentos. Carga leve com mais reps funciona: com esforço perto da falha, cargas leves e pesadas deram ganho de massa parecido.",
+    "fonte": "Schoenfeld BJ, Grgic J, Ogborn D, Krieger JW. J Strength Cond Res. 2017;31(12):3508-23",
+    "nivel": "alto",
+    "revisado": false
+  },
+  "extensao-cotovelo": {
+    "texto": "Isola o tríceps depois dos exercícios de empurrar. Com o braço acima da cabeça, como no tríceps francês, a cabeça longa fica alongada, e o tríceps cresceu mais do que na mesma extensão feita com o braço ao lado do corpo.",
+    "fonte": "Maeo S, et al. Eur J Sport Sci. 2023;23(7):1240-50",
+    "nivel": "moderado",
+    "revisado": false
+  },
+  "puxar-vertical": {
+    "texto": "Puxar de cima para baixo é o principal estímulo para o latíssimo do dorso, com bíceps e romboides ajudando. A puxada pela frente, com pegada um pouco mais aberta que os ombros, ativou o latíssimo melhor do que puxar por trás da nuca.",
+    "fonte": "Signorile JF, Zink AJ, Szwed SP. J Strength Cond Res. 2002;16(4):539-46",
+    "nivel": "baixo",
+    "revisado": false
+  },
+  "puxar-horizontal": {
+    "texto": "Puxar na horizontal treina a espessura das costas (romboides, trapézio médio e latíssimo) e equilibra o volume dos exercícios de empurrar. As remadas com o tronco apoiado, como na polia ou unilateral, carregam menos a lombar do que a remada curvada.",
+    "fonte": "Fenwick CMJ, Brown SHM, McGill SM. J Strength Cond Res. 2009;23(5):1408-17",
+    "nivel": "baixo",
+    "revisado": false
+  },
+  "flexao-cotovelo": {
+    "texto": "Isola o bíceps e o braquial, que trabalham pouco nas puxadas pesadas. A pegada neutra da rosca martelo puxa mais o braquiorradial; variar a pegada distribui o estímulo entre os músculos do braço. Somar séries para o braço aumenta o volume semanal, que está ligado ao ganho de massa.",
+    "fonte": "Schoenfeld BJ, Ogborn D, Krieger JW. J Sports Sci. 2017;35(11):1073-82",
+    "nivel": "moderado",
+    "revisado": false
+  },
+  "agachar": {
+    "texto": "Agachar treina quadríceps, glúteos e adutores juntos e é a base de força das pernas. Agachar fundo, com a coxa abaixo da paralela, deu mais ganho de glúteos e adutores do que o agachamento raso.",
+    "fonte": "Kubo K, Ikebukuro T, Yata H. Eur J Appl Physiol. 2019;119(9):1933-42",
+    "nivel": "moderado",
+    "revisado": false
+  },
+  "extensao-joelho": {
+    "texto": "Isola o quadríceps, inclusive o reto femoral, que trabalha menos no agachamento por cruzar também o quadril. Complementa os exercícios de agachar sem colocar carga na coluna.",
+    "fonte": "Gentil P, Soares S, Bottaro M. Asian J Sports Med. 2015;6(2):e24057",
+    "nivel": "moderado",
+    "revisado": false
+  },
+  "flexao-joelho": {
+    "texto": "Isola os isquiotibiais na função de dobrar o joelho, que o stiff trabalha pouco. A versão sentada, com o quadril dobrado, alonga mais o músculo e deu mais crescimento do que a versão deitada.",
+    "fonte": "Maeo S, et al. Med Sci Sports Exerc. 2021;53(4):825-37",
+    "nivel": "moderado",
+    "revisado": false
+  },
+  "dobrar-quadril": {
+    "texto": "Dobrar o quadril com a coluna neutra treina glúteos e isquiotibiais na função de estender o quadril. O stiff trabalha os isquiotibiais alongados e sob carga; a elevação pélvica mantém o glúteo muito ativo no fim do movimento.",
+    "fonte": "McAllister MJ, et al. J Strength Cond Res. 2014;28(6):1573-80 · Contreras B, et al. J Appl Biomech. 2015;31(6):452-8",
+    "nivel": "baixo",
+    "revisado": false
+  },
+  "avanco": {
+    "texto": "Trabalho de uma perna por vez para quadríceps e glúteos, que mostra e corrige diferenças entre os lados e exige equilíbrio. É uma alternativa ao agachamento com menos carga absoluta na coluna.",
+    "fonte": "Prática comum de treino; sem estudo específico citado",
+    "nivel": "baixo",
+    "revisado": false
+  },
+  "flexao-plantar": {
+    "texto": "Em pé, com o joelho estendido, a elevação de calcanhar treina o gastrocnêmio e o sóleo; sentado, quase só o sóleo. A versão em pé deu mais crescimento total da panturrilha.",
+    "fonte": "Kinoshita M, et al. Front Physiol. 2023;14:1272106",
+    "nivel": "moderado",
+    "revisado": false
+  },
+  "anti-extensao": {
+    "texto": "A prancha treina o core a impedir que a lombar arqueie, que é o papel dele nos agachamentos e levantamentos. Segurar pouco tempo com boa postura e repetir vale mais do que segurar até a postura cair.",
+    "fonte": "McGill SM. Strength Cond J. 2010;32(3):33-46",
+    "nivel": "baixo",
+    "revisado": false
+  },
+  "flexao-tronco": {
+    "texto": "Dobrar o tronco contra uma carga treina o reto abdominal com progressão, como qualquer outro músculo. O movimento é da coluna, enrolando o tronco, sem puxar a corda com os braços.",
+    "fonte": "Prática comum de treino; sem estudo específico citado",
+    "nivel": "baixo",
+    "revisado": false
+  }
+}

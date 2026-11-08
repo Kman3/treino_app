@@ -3,7 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/db/app_database.dart';
 import '../../core/db/providers.dart';
+import '../../core/marca.dart';
 import '../../core/theme/tokens.dart';
+import '../../core/widgets/icone_caramelo.dart';
 import '../progressao/progressao.dart';
 
 final preferenciasProvider = StreamProvider.autoDispose<Preferencia>(
@@ -29,7 +31,15 @@ class TelaPerfil extends ConsumerWidget {
           return ListView(
             padding: const EdgeInsets.all(Espacos.l),
             children: [
-              const Text('Perfil', style: Textos.titulo),
+              // O Caramelo como avatar; o título já diz "Perfil" ao leitor
+              // de tela, então o ícone é decorativo.
+              const Row(
+                children: [
+                  IconeCaramelo(tamanho: 48),
+                  SizedBox(width: Espacos.m),
+                  Text('Perfil', style: Textos.titulo),
+                ],
+              ),
               const SizedBox(height: Espacos.xl),
               const Text('PREFERÊNCIAS DE TREINO', style: Textos.rotulo),
               const SizedBox(height: Espacos.s),
@@ -95,10 +105,42 @@ class TelaPerfil extends ConsumerWidget {
                 'tudo fica só neste aparelho.',
                 style: Textos.secundario,
               ),
+              const SizedBox(height: Espacos.xl),
+              const _Sobre(),
             ],
           );
         },
       ),
+    );
+  }
+}
+
+/// Perfil → Sobre: o logo Caramelo Mutante, a versão e o conceito.
+class _Sobre extends StatelessWidget {
+  const _Sobre();
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        const Text('SOBRE', style: Textos.rotulo),
+        const SizedBox(height: Espacos.l),
+        Center(
+          child: Image.asset(
+            Marca.logoVertical,
+            width: 180,
+            semanticLabel: Marca.nome,
+          ),
+        ),
+        const SizedBox(height: Espacos.l),
+        const Text(
+          '${Marca.conceito}\nVERSÃO ${Marca.versao}',
+          textAlign: TextAlign.center,
+          style: Textos.rotulo,
+        ),
+        const SizedBox(height: Espacos.xl),
+      ],
     );
   }
 }

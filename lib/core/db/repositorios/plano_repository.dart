@@ -4,10 +4,14 @@ import 'package:drift/drift.dart';
 import '../app_database.dart';
 
 class ItemComExercicio {
-  const ItemComExercicio(this.item, this.exercicio);
+  const ItemComExercicio(this.item, this.exercicio, {this.original});
 
   final ItemPlano item;
   final Exercicio exercicio;
+
+  /// O exercício do plano quando ele foi trocado só neste treino ("Ocupado"
+  /// ou "Senti dor"). Nulo sem troca.
+  final Exercicio? original;
 }
 
 class SessaoComItens {
@@ -150,6 +154,29 @@ class PlanoRepository {
       emAndamento: emAndamento,
     );
   }
+
+  Future<ItemPlano?> item(String itemPlanoId) => (_db.select(
+    _db.itensPlano,
+  )..where((i) => i.id.equals(itemPlanoId))).getSingleOrNull();
+
+  /// As sessões do plano ativo com os exercícios, na ordem do ciclo.
+  Future<List<SessaoComItens>> sessoesComItens() async {
+    final plano = await planoAtivo();
+    if (plano == null) return const [];
+    return [
+      for (final s in await sessoesDoPlano(plano.id))
+        (await sessaoComItens(s.id))!,
+    ];
+  }
+
+  Stream<List<SessaoComItens>> watchSessoesComItens() => _db
+      .quandoMudar('sessoes_com_itens', {
+        _db.planosTreino,
+        _db.sessoesPlano,
+        _db.itensPlano,
+        _db.exercicios,
+      })
+      .asyncMap((_) => sessoesComItens());
 
   /// Novo ponto de partida do exercício (PR aceito como "novo zero"): as
   /// séries normais passam a usar esta carga daqui em diante.

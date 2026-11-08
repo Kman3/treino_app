@@ -51,7 +51,8 @@ class TelaResumo extends ConsumerWidget {
             padding: const EdgeInsets.all(Espacos.l),
             children: [
               Text(
-                parcial ? 'TREINO PARCIAL' : 'TREINO CONCLUÍDO',
+                '${parcial ? 'TREINO PARCIAL' : 'TREINO CONCLUÍDO'}'
+                '${estado.vinteMinutos ? ' · VERSÃO DE 20 MIN' : ''}',
                 style: Textos.rotulo.copyWith(
                   color: parcial ? Cores.atencao : Cores.avanco,
                 ),
@@ -80,11 +81,25 @@ class TelaResumo extends ConsumerWidget {
               const SizedBox(height: Espacos.xl),
               for (final item in estado.sessao.itens)
                 _ResumoExercicio(
-                  nome: item.exercicio.nome,
+                  nome: item.original == null
+                      ? item.exercicio.nome
+                      : '${item.exercicio.nome} '
+                            '(no lugar de ${item.original!.nome})',
                   exercicio: item.exercicio,
                   series: estado.seriesDoItem(item.item.id),
                   aquecimento: estado.aquecimentoDoItem(item.item.id),
                   planejadas: item.item.series,
+                  dor: estado.dorEm(item),
+                ),
+              for (final item in estado.removidos)
+                _ResumoExercicio(
+                  nome: item.exercicio.nome,
+                  exercicio: item.exercicio,
+                  series: const [],
+                  aquecimento: null,
+                  planejadas: item.item.series,
+                  dor: true,
+                  tirado: true,
                 ),
             ],
           ),
@@ -133,6 +148,8 @@ class _ResumoExercicio extends StatelessWidget {
     required this.series,
     required this.aquecimento,
     required this.planejadas,
+    this.dor = false,
+    this.tirado = false,
   });
 
   final String nome;
@@ -140,6 +157,12 @@ class _ResumoExercicio extends StatelessWidget {
   final List<Serie> series;
   final Serie? aquecimento;
   final int planejadas;
+
+  /// Dor registrada neste exercício no treino.
+  final bool dor;
+
+  /// Saiu do treino por dor antes da primeira série.
+  final bool tirado;
 
   String _serie(Serie s) {
     final reps = s.reps ?? 0;
@@ -163,8 +186,15 @@ class _ResumoExercicio extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(nome, style: Textos.corpo),
+                if (dor)
+                  Text(
+                    'DOR REGISTRADA',
+                    style: Textos.rotulo.copyWith(color: Cores.dor),
+                  ),
                 Text(
-                  series.isEmpty
+                  tirado
+                      ? 'Tirado do treino'
+                      : series.isEmpty
                       ? 'Não feito'
                       : [
                           if (aquecimento != null)

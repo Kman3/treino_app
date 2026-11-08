@@ -31,8 +31,10 @@ class AppDatabase extends _$AppDatabase {
   /// 2: `ajustes_execucao` e `series.aquecimento` (modo PR e aquecimento).
   /// 3: descanso em `treinos`, `series.manter_carga`,
   ///    `ajustes_execucao.novo_zero_respondido` e `preferencias`.
+  /// 4: troca de exercício por treino ou para sempre (`substituicoes`) e
+  ///    "Senti dor" (`ajustes_execucao.removido` e `.dor`).
   @override
-  int get schemaVersion => 3;
+  int get schemaVersion => 4;
 
   /// Emite ao ouvir e de novo sempre que alguma das [tabelas] muda.
   ///
@@ -65,6 +67,15 @@ class AppDatabase extends _$AppDatabase {
           esquema.ajustesExecucao.novoZeroRespondido,
         );
         await m.createTable(esquema.preferencias);
+      },
+      from3To4: (m, esquema) async {
+        final subs = esquema.substituicoes;
+        await m.addColumn(subs, subs.treinoId);
+        await m.addColumn(subs, subs.cargaKg);
+        await m.addColumn(subs, subs.cargaOriginalKg);
+        final ajustes = esquema.ajustesExecucao;
+        await m.addColumn(ajustes, ajustes.removido);
+        await m.addColumn(ajustes, ajustes.dor);
       },
     ),
     beforeOpen: (details) async {

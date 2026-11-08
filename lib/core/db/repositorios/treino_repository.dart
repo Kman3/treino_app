@@ -231,6 +231,8 @@ class TreinoRepository {
     bool? progressaoPr,
     bool? aquecimento,
     bool? novoZeroRespondido,
+    bool? removido,
+    bool? dor,
   }) async {
     final agora = _agora();
     final existente =
@@ -252,6 +254,8 @@ class TreinoRepository {
               progressaoPr: Value(progressaoPr ?? false),
               aquecimento: Value(aquecimento ?? false),
               novoZeroRespondido: Value(novoZeroRespondido ?? false),
+              removido: Value(removido ?? false),
+              dor: Value(dor ?? false),
               atualizadoEm: Value(agora),
             ),
           );
@@ -264,9 +268,37 @@ class TreinoRepository {
         progressaoPr: Value.absentIfNull(progressaoPr),
         aquecimento: Value.absentIfNull(aquecimento),
         novoZeroRespondido: Value.absentIfNull(novoZeroRespondido),
+        removido: Value.absentIfNull(removido),
+        dor: Value.absentIfNull(dor),
         atualizadoEm: Value(agora),
       ),
     );
+  }
+
+  /// Marca (ou desmarca) dor nas séries já feitas de um exercício neste
+  /// treino e devolve os ids das séries que mudaram, para desfazer.
+  Future<List<String>> marcarDor({
+    required String treinoId,
+    required String itemPlanoId,
+    required bool dor,
+    Iterable<String>? apenas,
+  }) async {
+    final alvo =
+        await (_db.select(_db.series)..where(
+              (s) =>
+                  s.treinoId.equals(treinoId) &
+                  s.itemPlanoId.equals(itemPlanoId) &
+                  s.excluidoEm.isNull() &
+                  s.dor.equals(!dor) &
+                  (apenas == null
+                      ? const Constant(true)
+                      : s.id.isIn(apenas.toList())),
+            ))
+            .get();
+    for (final serie in alvo) {
+      await _atualizarSerie(serie.id, SeriesCompanion(dor: Value(dor)));
+    }
+    return [for (final s in alvo) s.id];
   }
 
   /// Para cada exercício, as séries do treino anterior mais recente em que ele

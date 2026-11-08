@@ -66,9 +66,12 @@ void main() {
     expect(find.text('EM BREVE'), findsOneWidget);
     expect(find.text('EVOLUÇÃO'), findsOneWidget);
 
+    // A Evolução chegou na etapa 4: lista os exercícios do plano.
     await tester.tap(find.text('EVOLUÇÃO'));
     await tester.pumpAndSettle();
-    expect(find.text('Chega na etapa 4.'), findsOneWidget);
+    expect(find.text('Evolução'), findsOneWidget);
+    expect(find.text('Supino reto com barra'), findsOneWidget);
+    expect(find.text('Sem registros'), findsWidgets);
 
     await fecharApp(tester);
   });

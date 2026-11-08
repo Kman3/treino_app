@@ -17,8 +17,7 @@ void main() {
     final batidas = <int>[];
     final tique = TiqueDoDescanso(
       fim: () => fim,
-      aoBater: () =>
-          batidas.add(clock.now().difference(inicio).inMilliseconds),
+      aoBater: () => batidas.add(clock.now().difference(inicio).inMilliseconds),
     );
 
     await tester.pump(const Duration(milliseconds: 3600));
@@ -34,10 +33,16 @@ void main() {
     final b = <String>[];
     String agora() => formatarRelogio(fim.difference(clock.now()));
 
-    final primeiro = TiqueDoDescanso(fim: () => fim, aoBater: () => a.add(agora()));
+    final primeiro = TiqueDoDescanso(
+      fim: () => fim,
+      aoBater: () => a.add(agora()),
+    );
     await tester.pump(const Duration(milliseconds: 700));
     // O segundo nasce 0,7 s depois, como o painel Ajustar aberto no meio.
-    final segundo = TiqueDoDescanso(fim: () => fim, aoBater: () => b.add(agora()));
+    final segundo = TiqueDoDescanso(
+      fim: () => fim,
+      aoBater: () => b.add(agora()),
+    );
     await tester.pump(const Duration(seconds: 3));
     primeiro.parar();
     segundo.parar();

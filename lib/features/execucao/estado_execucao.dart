@@ -1,6 +1,74 @@
+import 'package:drift/drift.dart' show Value;
+
 import '../../core/db/app_database.dart';
 import '../../core/db/repositorios/plano_repository.dart';
 import '../progressao/progressao.dart';
+import 'versao_reduzida.dart';
+
+/// A sessão como este treino a executa: na versão de 20 minutos, com as trocas
+/// feitas só hoje e sem os exercícios tirados por dor. Um exercício tirado no
+/// meio fica com as séries que já tinha feito; tirado antes da primeira, sai
+/// da lista e vai para [removidos].
+({SessaoComItens sessao, List<ItemComExercicio> removidos})
+montarSessaoDoTreino(
+  SessaoComItens doPlano, {
+  required Treino treino,
+  required Map<String, Substituicao> trocas,
+  required Map<String, Exercicio> catalogo,
+  required List<AjusteExecucao> ajustes,
+  required List<Serie> series,
+}) {
+  var itens = ehVinteMinutos(treino)
+      ? versaoVinteMinutos(doPlano.itens)
+      : doPlano.itens;
+
+  itens = [
+    for (final i in itens)
+      switch ((
+        trocas[i.item.id],
+        catalogo[trocas[i.item.id]?.exercicioNovoId],
+      )) {
+        (final troca?, final novo?) => ItemComExercicio(
+          i.item.copyWith(
+            exercicioId: novo.id,
+            cargaPlanKg: Value(troca.cargaKg),
+          ),
+          novo,
+          original: i.exercicio,
+        ),
+        _ => i,
+      },
+  ];
+
+  final tirados = {
+    for (final a in ajustes)
+      if (a.removido) a.itemPlanoId,
+  };
+  final removidos = <ItemComExercicio>[];
+  final ficam = <ItemComExercicio>[];
+  for (final i in itens) {
+    if (!tirados.contains(i.item.id)) {
+      ficam.add(i);
+      continue;
+    }
+    final feitas = series
+        .where((s) => !s.aquecimento && s.itemPlanoId == i.item.id)
+        .map((s) => s.numero);
+    if (feitas.isEmpty) {
+      removidos.add(i);
+    } else {
+      final ultima = feitas.reduce((a, b) => a > b ? a : b);
+      ficam.add(
+        ItemComExercicio(
+          i.item.copyWith(series: ultima),
+          i.exercicio,
+          original: i.original,
+        ),
+      );
+    }
+  }
+  return (sessao: SessaoComItens(doPlano.sessao, ficam), removidos: removidos);
+}
 
 /// A série que a pessoa vai fazer agora, já com a carga e as reps planejadas
 /// para ela (que mudam no modo PR e no aquecimento).
@@ -77,11 +145,28 @@ class EstadoExecucao {
     this.preferencias,
     this.prAnterior = const {},
     this.datasNovoPr = const {},
+    this.trocas = const {},
+    this.removidos = const [],
   }) : _todas = series,
        _ajustes = {for (final a in ajustes) a.itemPlanoId: a};
 
   final Treino treino;
+
+  /// A sessão como este treino a executa (ver [montarSessaoDoTreino]).
   final SessaoComItens sessao;
+
+  /// Por item do plano, a troca feita só neste treino.
+  final Map<String, Substituicao> trocas;
+
+  /// Exercícios tirados por dor antes da primeira série.
+  final List<ItemComExercicio> removidos;
+
+  bool get vinteMinutos => ehVinteMinutos(treino);
+
+  Substituicao? trocaDo(ItemComExercicio item) => trocas[item.item.id];
+
+  /// A pessoa registrou dor neste exercício hoje.
+  bool dorEm(ItemComExercicio item) => _ajustes[item.item.id]?.dor ?? false;
 
   /// Por exercício, as séries do treino anterior em que ele apareceu.
   final Map<String, List<Serie>> ultimaVez;

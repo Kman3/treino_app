@@ -2,6 +2,8 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../notificacoes/aviso_descanso.dart';
 import 'app_database.dart';
+import 'repositorios/evolucao_repository.dart';
+import 'repositorios/exercicio_repository.dart';
 import 'repositorios/plano_repository.dart';
 import 'repositorios/preferencias_repository.dart';
 import 'repositorios/treino_repository.dart';
@@ -21,6 +23,14 @@ final treinoRepositoryProvider = Provider(
 
 final preferenciasRepositoryProvider = Provider(
   (ref) => PreferenciasRepository(ref.watch(databaseProvider)),
+);
+
+final exercicioRepositoryProvider = Provider(
+  (ref) => ExercicioRepository(ref.watch(databaseProvider)),
+);
+
+final evolucaoRepositoryProvider = Provider(
+  (ref) => EvolucaoRepository(ref.watch(databaseProvider)),
 );
 
 /// Substituído em `main.dart` pela notificação local no Android.

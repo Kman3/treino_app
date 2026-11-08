@@ -4591,6 +4591,42 @@ class $SubstituicoesTable extends Substituicoes
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _treinoIdMeta = const VerificationMeta(
+    'treinoId',
+  );
+  @override
+  late final GeneratedColumn<String> treinoId = GeneratedColumn<String>(
+    'treino_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES treinos (id)',
+    ),
+  );
+  static const VerificationMeta _cargaKgMeta = const VerificationMeta(
+    'cargaKg',
+  );
+  @override
+  late final GeneratedColumn<double> cargaKg = GeneratedColumn<double>(
+    'carga_kg',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _cargaOriginalKgMeta = const VerificationMeta(
+    'cargaOriginalKg',
+  );
+  @override
+  late final GeneratedColumn<double> cargaOriginalKg = GeneratedColumn<double>(
+    'carga_original_kg',
+    aliasedName,
+    true,
+    type: DriftSqlType.double,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     atualizadoEm,
@@ -4602,6 +4638,9 @@ class $SubstituicoesTable extends Substituicoes
     exercicioOriginalId,
     exercicioNovoId,
     escopo,
+    treinoId,
+    cargaKg,
+    cargaOriginalKg,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -4691,6 +4730,27 @@ class $SubstituicoesTable extends Substituicoes
     } else if (isInserting) {
       context.missing(_escopoMeta);
     }
+    if (data.containsKey('treino_id')) {
+      context.handle(
+        _treinoIdMeta,
+        treinoId.isAcceptableOrUnknown(data['treino_id']!, _treinoIdMeta),
+      );
+    }
+    if (data.containsKey('carga_kg')) {
+      context.handle(
+        _cargaKgMeta,
+        cargaKg.isAcceptableOrUnknown(data['carga_kg']!, _cargaKgMeta),
+      );
+    }
+    if (data.containsKey('carga_original_kg')) {
+      context.handle(
+        _cargaOriginalKgMeta,
+        cargaOriginalKg.isAcceptableOrUnknown(
+          data['carga_original_kg']!,
+          _cargaOriginalKgMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -4736,6 +4796,18 @@ class $SubstituicoesTable extends Substituicoes
         DriftSqlType.string,
         data['${effectivePrefix}escopo'],
       )!,
+      treinoId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}treino_id'],
+      ),
+      cargaKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}carga_kg'],
+      ),
+      cargaOriginalKg: attachedDatabase.typeMapping.read(
+        DriftSqlType.double,
+        data['${effectivePrefix}carga_original_kg'],
+      ),
     );
   }
 
@@ -4755,6 +4827,15 @@ class Substituicao extends DataClass implements Insertable<Substituicao> {
   final String exercicioOriginalId;
   final String exercicioNovoId;
   final String escopo;
+
+  /// Treino em que a troca vale (escopo `sessao`). Versão 4.
+  final String? treinoId;
+
+  /// Carga planejada para o exercício novo. Versão 4.
+  final double? cargaKg;
+
+  /// Carga que o item do plano tinha antes da troca `sempre`. Versão 4.
+  final double? cargaOriginalKg;
   const Substituicao({
     required this.atualizadoEm,
     this.excluidoEm,
@@ -4765,6 +4846,9 @@ class Substituicao extends DataClass implements Insertable<Substituicao> {
     required this.exercicioOriginalId,
     required this.exercicioNovoId,
     required this.escopo,
+    this.treinoId,
+    this.cargaKg,
+    this.cargaOriginalKg,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -4784,6 +4868,15 @@ class Substituicao extends DataClass implements Insertable<Substituicao> {
     map['exercicio_original_id'] = Variable<String>(exercicioOriginalId);
     map['exercicio_novo_id'] = Variable<String>(exercicioNovoId);
     map['escopo'] = Variable<String>(escopo);
+    if (!nullToAbsent || treinoId != null) {
+      map['treino_id'] = Variable<String>(treinoId);
+    }
+    if (!nullToAbsent || cargaKg != null) {
+      map['carga_kg'] = Variable<double>(cargaKg);
+    }
+    if (!nullToAbsent || cargaOriginalKg != null) {
+      map['carga_original_kg'] = Variable<double>(cargaOriginalKg);
+    }
     return map;
   }
 
@@ -4804,6 +4897,15 @@ class Substituicao extends DataClass implements Insertable<Substituicao> {
       exercicioOriginalId: Value(exercicioOriginalId),
       exercicioNovoId: Value(exercicioNovoId),
       escopo: Value(escopo),
+      treinoId: treinoId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(treinoId),
+      cargaKg: cargaKg == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cargaKg),
+      cargaOriginalKg: cargaOriginalKg == null && nullToAbsent
+          ? const Value.absent()
+          : Value(cargaOriginalKg),
     );
   }
 
@@ -4824,6 +4926,9 @@ class Substituicao extends DataClass implements Insertable<Substituicao> {
       ),
       exercicioNovoId: serializer.fromJson<String>(json['exercicioNovoId']),
       escopo: serializer.fromJson<String>(json['escopo']),
+      treinoId: serializer.fromJson<String?>(json['treinoId']),
+      cargaKg: serializer.fromJson<double?>(json['cargaKg']),
+      cargaOriginalKg: serializer.fromJson<double?>(json['cargaOriginalKg']),
     );
   }
   @override
@@ -4839,6 +4944,9 @@ class Substituicao extends DataClass implements Insertable<Substituicao> {
       'exercicioOriginalId': serializer.toJson<String>(exercicioOriginalId),
       'exercicioNovoId': serializer.toJson<String>(exercicioNovoId),
       'escopo': serializer.toJson<String>(escopo),
+      'treinoId': serializer.toJson<String?>(treinoId),
+      'cargaKg': serializer.toJson<double?>(cargaKg),
+      'cargaOriginalKg': serializer.toJson<double?>(cargaOriginalKg),
     };
   }
 
@@ -4852,6 +4960,9 @@ class Substituicao extends DataClass implements Insertable<Substituicao> {
     String? exercicioOriginalId,
     String? exercicioNovoId,
     String? escopo,
+    Value<String?> treinoId = const Value.absent(),
+    Value<double?> cargaKg = const Value.absent(),
+    Value<double?> cargaOriginalKg = const Value.absent(),
   }) => Substituicao(
     atualizadoEm: atualizadoEm ?? this.atualizadoEm,
     excluidoEm: excluidoEm.present ? excluidoEm.value : this.excluidoEm,
@@ -4864,6 +4975,11 @@ class Substituicao extends DataClass implements Insertable<Substituicao> {
     exercicioOriginalId: exercicioOriginalId ?? this.exercicioOriginalId,
     exercicioNovoId: exercicioNovoId ?? this.exercicioNovoId,
     escopo: escopo ?? this.escopo,
+    treinoId: treinoId.present ? treinoId.value : this.treinoId,
+    cargaKg: cargaKg.present ? cargaKg.value : this.cargaKg,
+    cargaOriginalKg: cargaOriginalKg.present
+        ? cargaOriginalKg.value
+        : this.cargaOriginalKg,
   );
   Substituicao copyWithCompanion(SubstituicoesCompanion data) {
     return Substituicao(
@@ -4888,6 +5004,11 @@ class Substituicao extends DataClass implements Insertable<Substituicao> {
           ? data.exercicioNovoId.value
           : this.exercicioNovoId,
       escopo: data.escopo.present ? data.escopo.value : this.escopo,
+      treinoId: data.treinoId.present ? data.treinoId.value : this.treinoId,
+      cargaKg: data.cargaKg.present ? data.cargaKg.value : this.cargaKg,
+      cargaOriginalKg: data.cargaOriginalKg.present
+          ? data.cargaOriginalKg.value
+          : this.cargaOriginalKg,
     );
   }
 
@@ -4902,7 +5023,10 @@ class Substituicao extends DataClass implements Insertable<Substituicao> {
           ..write('itemPlanoId: $itemPlanoId, ')
           ..write('exercicioOriginalId: $exercicioOriginalId, ')
           ..write('exercicioNovoId: $exercicioNovoId, ')
-          ..write('escopo: $escopo')
+          ..write('escopo: $escopo, ')
+          ..write('treinoId: $treinoId, ')
+          ..write('cargaKg: $cargaKg, ')
+          ..write('cargaOriginalKg: $cargaOriginalKg')
           ..write(')'))
         .toString();
   }
@@ -4918,6 +5042,9 @@ class Substituicao extends DataClass implements Insertable<Substituicao> {
     exercicioOriginalId,
     exercicioNovoId,
     escopo,
+    treinoId,
+    cargaKg,
+    cargaOriginalKg,
   );
   @override
   bool operator ==(Object other) =>
@@ -4931,7 +5058,10 @@ class Substituicao extends DataClass implements Insertable<Substituicao> {
           other.itemPlanoId == this.itemPlanoId &&
           other.exercicioOriginalId == this.exercicioOriginalId &&
           other.exercicioNovoId == this.exercicioNovoId &&
-          other.escopo == this.escopo);
+          other.escopo == this.escopo &&
+          other.treinoId == this.treinoId &&
+          other.cargaKg == this.cargaKg &&
+          other.cargaOriginalKg == this.cargaOriginalKg);
 }
 
 class SubstituicoesCompanion extends UpdateCompanion<Substituicao> {
@@ -4944,6 +5074,9 @@ class SubstituicoesCompanion extends UpdateCompanion<Substituicao> {
   final Value<String> exercicioOriginalId;
   final Value<String> exercicioNovoId;
   final Value<String> escopo;
+  final Value<String?> treinoId;
+  final Value<double?> cargaKg;
+  final Value<double?> cargaOriginalKg;
   final Value<int> rowid;
   const SubstituicoesCompanion({
     this.atualizadoEm = const Value.absent(),
@@ -4955,6 +5088,9 @@ class SubstituicoesCompanion extends UpdateCompanion<Substituicao> {
     this.exercicioOriginalId = const Value.absent(),
     this.exercicioNovoId = const Value.absent(),
     this.escopo = const Value.absent(),
+    this.treinoId = const Value.absent(),
+    this.cargaKg = const Value.absent(),
+    this.cargaOriginalKg = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   SubstituicoesCompanion.insert({
@@ -4967,6 +5103,9 @@ class SubstituicoesCompanion extends UpdateCompanion<Substituicao> {
     required String exercicioOriginalId,
     required String exercicioNovoId,
     required String escopo,
+    this.treinoId = const Value.absent(),
+    this.cargaKg = const Value.absent(),
+    this.cargaOriginalKg = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        itemPlanoId = Value(itemPlanoId),
@@ -4983,6 +5122,9 @@ class SubstituicoesCompanion extends UpdateCompanion<Substituicao> {
     Expression<String>? exercicioOriginalId,
     Expression<String>? exercicioNovoId,
     Expression<String>? escopo,
+    Expression<String>? treinoId,
+    Expression<double>? cargaKg,
+    Expression<double>? cargaOriginalKg,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -4996,6 +5138,9 @@ class SubstituicoesCompanion extends UpdateCompanion<Substituicao> {
         'exercicio_original_id': exercicioOriginalId,
       if (exercicioNovoId != null) 'exercicio_novo_id': exercicioNovoId,
       if (escopo != null) 'escopo': escopo,
+      if (treinoId != null) 'treino_id': treinoId,
+      if (cargaKg != null) 'carga_kg': cargaKg,
+      if (cargaOriginalKg != null) 'carga_original_kg': cargaOriginalKg,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5010,6 +5155,9 @@ class SubstituicoesCompanion extends UpdateCompanion<Substituicao> {
     Value<String>? exercicioOriginalId,
     Value<String>? exercicioNovoId,
     Value<String>? escopo,
+    Value<String?>? treinoId,
+    Value<double?>? cargaKg,
+    Value<double?>? cargaOriginalKg,
     Value<int>? rowid,
   }) {
     return SubstituicoesCompanion(
@@ -5022,6 +5170,9 @@ class SubstituicoesCompanion extends UpdateCompanion<Substituicao> {
       exercicioOriginalId: exercicioOriginalId ?? this.exercicioOriginalId,
       exercicioNovoId: exercicioNovoId ?? this.exercicioNovoId,
       escopo: escopo ?? this.escopo,
+      treinoId: treinoId ?? this.treinoId,
+      cargaKg: cargaKg ?? this.cargaKg,
+      cargaOriginalKg: cargaOriginalKg ?? this.cargaOriginalKg,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5058,6 +5209,15 @@ class SubstituicoesCompanion extends UpdateCompanion<Substituicao> {
     if (escopo.present) {
       map['escopo'] = Variable<String>(escopo.value);
     }
+    if (treinoId.present) {
+      map['treino_id'] = Variable<String>(treinoId.value);
+    }
+    if (cargaKg.present) {
+      map['carga_kg'] = Variable<double>(cargaKg.value);
+    }
+    if (cargaOriginalKg.present) {
+      map['carga_original_kg'] = Variable<double>(cargaOriginalKg.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5076,6 +5236,9 @@ class SubstituicoesCompanion extends UpdateCompanion<Substituicao> {
           ..write('exercicioOriginalId: $exercicioOriginalId, ')
           ..write('exercicioNovoId: $exercicioNovoId, ')
           ..write('escopo: $escopo, ')
+          ..write('treinoId: $treinoId, ')
+          ..write('cargaKg: $cargaKg, ')
+          ..write('cargaOriginalKg: $cargaOriginalKg, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -5204,6 +5367,34 @@ class $AjustesExecucaoTable extends AjustesExecucao
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _removidoMeta = const VerificationMeta(
+    'removido',
+  );
+  @override
+  late final GeneratedColumn<bool> removido = GeneratedColumn<bool>(
+    'removido',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("removido" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _dorMeta = const VerificationMeta('dor');
+  @override
+  late final GeneratedColumn<bool> dor = GeneratedColumn<bool>(
+    'dor',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("dor" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     atualizadoEm,
@@ -5215,6 +5406,8 @@ class $AjustesExecucaoTable extends AjustesExecucao
     progressaoPr,
     aquecimento,
     novoZeroRespondido,
+    removido,
+    dor,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5303,6 +5496,18 @@ class $AjustesExecucaoTable extends AjustesExecucao
         ),
       );
     }
+    if (data.containsKey('removido')) {
+      context.handle(
+        _removidoMeta,
+        removido.isAcceptableOrUnknown(data['removido']!, _removidoMeta),
+      );
+    }
+    if (data.containsKey('dor')) {
+      context.handle(
+        _dorMeta,
+        dor.isAcceptableOrUnknown(data['dor']!, _dorMeta),
+      );
+    }
     return context;
   }
 
@@ -5352,6 +5557,14 @@ class $AjustesExecucaoTable extends AjustesExecucao
         DriftSqlType.bool,
         data['${effectivePrefix}novo_zero_respondido'],
       )!,
+      removido: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}removido'],
+      )!,
+      dor: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}dor'],
+      )!,
     );
   }
 
@@ -5378,6 +5591,13 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
   /// A pergunta "usar o PR como novo ponto de partida?" já foi respondida
   /// neste treino. Versão 3.
   final bool novoZeroRespondido;
+
+  /// O exercício saiu deste treino ("Senti dor" → tirar do treino). As
+  /// séries já feitas ficam. Versão 4.
+  final bool removido;
+
+  /// A pessoa registrou dor neste exercício durante o treino. Versão 4.
+  final bool dor;
   const AjusteExecucao({
     required this.atualizadoEm,
     this.excluidoEm,
@@ -5388,6 +5608,8 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
     required this.progressaoPr,
     required this.aquecimento,
     required this.novoZeroRespondido,
+    required this.removido,
+    required this.dor,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5405,6 +5627,8 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
     map['progressao_pr'] = Variable<bool>(progressaoPr);
     map['aquecimento'] = Variable<bool>(aquecimento);
     map['novo_zero_respondido'] = Variable<bool>(novoZeroRespondido);
+    map['removido'] = Variable<bool>(removido);
+    map['dor'] = Variable<bool>(dor);
     return map;
   }
 
@@ -5423,6 +5647,8 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
       progressaoPr: Value(progressaoPr),
       aquecimento: Value(aquecimento),
       novoZeroRespondido: Value(novoZeroRespondido),
+      removido: Value(removido),
+      dor: Value(dor),
     );
   }
 
@@ -5441,6 +5667,8 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
       progressaoPr: serializer.fromJson<bool>(json['progressaoPr']),
       aquecimento: serializer.fromJson<bool>(json['aquecimento']),
       novoZeroRespondido: serializer.fromJson<bool>(json['novoZeroRespondido']),
+      removido: serializer.fromJson<bool>(json['removido']),
+      dor: serializer.fromJson<bool>(json['dor']),
     );
   }
   @override
@@ -5456,6 +5684,8 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
       'progressaoPr': serializer.toJson<bool>(progressaoPr),
       'aquecimento': serializer.toJson<bool>(aquecimento),
       'novoZeroRespondido': serializer.toJson<bool>(novoZeroRespondido),
+      'removido': serializer.toJson<bool>(removido),
+      'dor': serializer.toJson<bool>(dor),
     };
   }
 
@@ -5469,6 +5699,8 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
     bool? progressaoPr,
     bool? aquecimento,
     bool? novoZeroRespondido,
+    bool? removido,
+    bool? dor,
   }) => AjusteExecucao(
     atualizadoEm: atualizadoEm ?? this.atualizadoEm,
     excluidoEm: excluidoEm.present ? excluidoEm.value : this.excluidoEm,
@@ -5481,6 +5713,8 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
     progressaoPr: progressaoPr ?? this.progressaoPr,
     aquecimento: aquecimento ?? this.aquecimento,
     novoZeroRespondido: novoZeroRespondido ?? this.novoZeroRespondido,
+    removido: removido ?? this.removido,
+    dor: dor ?? this.dor,
   );
   AjusteExecucao copyWithCompanion(AjustesExecucaoCompanion data) {
     return AjusteExecucao(
@@ -5507,6 +5741,8 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
       novoZeroRespondido: data.novoZeroRespondido.present
           ? data.novoZeroRespondido.value
           : this.novoZeroRespondido,
+      removido: data.removido.present ? data.removido.value : this.removido,
+      dor: data.dor.present ? data.dor.value : this.dor,
     );
   }
 
@@ -5521,7 +5757,9 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
           ..write('itemPlanoId: $itemPlanoId, ')
           ..write('progressaoPr: $progressaoPr, ')
           ..write('aquecimento: $aquecimento, ')
-          ..write('novoZeroRespondido: $novoZeroRespondido')
+          ..write('novoZeroRespondido: $novoZeroRespondido, ')
+          ..write('removido: $removido, ')
+          ..write('dor: $dor')
           ..write(')'))
         .toString();
   }
@@ -5537,6 +5775,8 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
     progressaoPr,
     aquecimento,
     novoZeroRespondido,
+    removido,
+    dor,
   );
   @override
   bool operator ==(Object other) =>
@@ -5550,7 +5790,9 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
           other.itemPlanoId == this.itemPlanoId &&
           other.progressaoPr == this.progressaoPr &&
           other.aquecimento == this.aquecimento &&
-          other.novoZeroRespondido == this.novoZeroRespondido);
+          other.novoZeroRespondido == this.novoZeroRespondido &&
+          other.removido == this.removido &&
+          other.dor == this.dor);
 }
 
 class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
@@ -5563,6 +5805,8 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
   final Value<bool> progressaoPr;
   final Value<bool> aquecimento;
   final Value<bool> novoZeroRespondido;
+  final Value<bool> removido;
+  final Value<bool> dor;
   final Value<int> rowid;
   const AjustesExecucaoCompanion({
     this.atualizadoEm = const Value.absent(),
@@ -5574,6 +5818,8 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
     this.progressaoPr = const Value.absent(),
     this.aquecimento = const Value.absent(),
     this.novoZeroRespondido = const Value.absent(),
+    this.removido = const Value.absent(),
+    this.dor = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AjustesExecucaoCompanion.insert({
@@ -5586,6 +5832,8 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
     this.progressaoPr = const Value.absent(),
     this.aquecimento = const Value.absent(),
     this.novoZeroRespondido = const Value.absent(),
+    this.removido = const Value.absent(),
+    this.dor = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        treinoId = Value(treinoId),
@@ -5600,6 +5848,8 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
     Expression<bool>? progressaoPr,
     Expression<bool>? aquecimento,
     Expression<bool>? novoZeroRespondido,
+    Expression<bool>? removido,
+    Expression<bool>? dor,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -5613,6 +5863,8 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
       if (aquecimento != null) 'aquecimento': aquecimento,
       if (novoZeroRespondido != null)
         'novo_zero_respondido': novoZeroRespondido,
+      if (removido != null) 'removido': removido,
+      if (dor != null) 'dor': dor,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5627,6 +5879,8 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
     Value<bool>? progressaoPr,
     Value<bool>? aquecimento,
     Value<bool>? novoZeroRespondido,
+    Value<bool>? removido,
+    Value<bool>? dor,
     Value<int>? rowid,
   }) {
     return AjustesExecucaoCompanion(
@@ -5639,6 +5893,8 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
       progressaoPr: progressaoPr ?? this.progressaoPr,
       aquecimento: aquecimento ?? this.aquecimento,
       novoZeroRespondido: novoZeroRespondido ?? this.novoZeroRespondido,
+      removido: removido ?? this.removido,
+      dor: dor ?? this.dor,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5673,6 +5929,12 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
     if (novoZeroRespondido.present) {
       map['novo_zero_respondido'] = Variable<bool>(novoZeroRespondido.value);
     }
+    if (removido.present) {
+      map['removido'] = Variable<bool>(removido.value);
+    }
+    if (dor.present) {
+      map['dor'] = Variable<bool>(dor.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5691,6 +5953,8 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
           ..write('progressaoPr: $progressaoPr, ')
           ..write('aquecimento: $aquecimento, ')
           ..write('novoZeroRespondido: $novoZeroRespondido, ')
+          ..write('removido: $removido, ')
+          ..write('dor: $dor, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -8795,6 +9059,24 @@ final class $$TreinosTableReferences
     );
   }
 
+  static MultiTypedResultKey<$SubstituicoesTable, List<Substituicao>>
+  _substituicoesRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.substituicoes,
+    aliasName: 'treinos__id__substituicoes__treino_id',
+  );
+
+  $$SubstituicoesTableProcessedTableManager get substituicoesRefs {
+    final manager = $$SubstituicoesTableTableManager(
+      $_db,
+      $_db.substituicoes,
+    ).filter((f) => f.treinoId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(_substituicoesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
   static MultiTypedResultKey<$AjustesExecucaoTable, List<AjusteExecucao>>
   _ajustesExecucaoRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
     db.ajustesExecucao,
@@ -8919,6 +9201,31 @@ class $$TreinosTableFilterComposer
           }) => $$SeriesTableFilterComposer(
             $db: $db,
             $table: $db.series,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> substituicoesRefs(
+    Expression<bool> Function($$SubstituicoesTableFilterComposer f) f,
+  ) {
+    final $$SubstituicoesTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.substituicoes,
+      getReferencedColumn: (t) => t.treinoId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SubstituicoesTableFilterComposer(
+            $db: $db,
+            $table: $db.substituicoes,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -9146,6 +9453,31 @@ class $$TreinosTableAnnotationComposer
     return f(composer);
   }
 
+  Expression<T> substituicoesRefs<T extends Object>(
+    Expression<T> Function($$SubstituicoesTableAnnotationComposer a) f,
+  ) {
+    final $$SubstituicoesTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.substituicoes,
+      getReferencedColumn: (t) => t.treinoId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$SubstituicoesTableAnnotationComposer(
+            $db: $db,
+            $table: $db.substituicoes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
   Expression<T> ajustesExecucaoRefs<T extends Object>(
     Expression<T> Function($$AjustesExecucaoTableAnnotationComposer a) f,
   ) {
@@ -9188,6 +9520,7 @@ class $$TreinosTableTableManager
           PrefetchHooks Function({
             bool sessaoPlanoId,
             bool seriesRefs,
+            bool substituicoesRefs,
             bool ajustesExecucaoRefs,
           })
         > {
@@ -9274,12 +9607,14 @@ class $$TreinosTableTableManager
               ({
                 sessaoPlanoId = false,
                 seriesRefs = false,
+                substituicoesRefs = false,
                 ajustesExecucaoRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (seriesRefs) db.series,
+                    if (substituicoesRefs) db.substituicoes,
                     if (ajustesExecucaoRefs) db.ajustesExecucao,
                   ],
                   addJoins:
@@ -9331,6 +9666,27 @@ class $$TreinosTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (substituicoesRefs)
+                        await $_getPrefetchedData<
+                          Treino,
+                          $TreinosTable,
+                          Substituicao
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TreinosTableReferences
+                              ._substituicoesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TreinosTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).substituicoesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.treinoId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                       if (ajustesExecucaoRefs)
                         await $_getPrefetchedData<
                           Treino,
@@ -9375,6 +9731,7 @@ typedef $$TreinosTableProcessedTableManager =
       PrefetchHooks Function({
         bool sessaoPlanoId,
         bool seriesRefs,
+        bool substituicoesRefs,
         bool ajustesExecucaoRefs,
       })
     >;
@@ -10161,6 +10518,9 @@ typedef $$SubstituicoesTableCreateCompanionBuilder =
       required String exercicioOriginalId,
       required String exercicioNovoId,
       required String escopo,
+      Value<String?> treinoId,
+      Value<double?> cargaKg,
+      Value<double?> cargaOriginalKg,
       Value<int> rowid,
     });
 typedef $$SubstituicoesTableUpdateCompanionBuilder =
@@ -10174,6 +10534,9 @@ typedef $$SubstituicoesTableUpdateCompanionBuilder =
       Value<String> exercicioOriginalId,
       Value<String> exercicioNovoId,
       Value<String> escopo,
+      Value<String?> treinoId,
+      Value<double?> cargaKg,
+      Value<double?> cargaOriginalKg,
       Value<int> rowid,
     });
 
@@ -10237,6 +10600,23 @@ final class $$SubstituicoesTableReferences
       manager.$state.copyWith(prefetchedData: [item]),
     );
   }
+
+  static $TreinosTable _treinoIdTable(_$AppDatabase db) =>
+      db.treinos.createAlias('substituicoes__treino_id__treinos__id');
+
+  $$TreinosTableProcessedTableManager? get treinoId {
+    final $_column = $_itemColumn<String>('treino_id');
+    if ($_column == null) return null;
+    final manager = $$TreinosTableTableManager(
+      $_db,
+      $_db.treinos,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_treinoIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
 }
 
 class $$SubstituicoesTableFilterComposer
@@ -10275,6 +10655,16 @@ class $$SubstituicoesTableFilterComposer
 
   ColumnFilters<String> get escopo => $composableBuilder(
     column: $table.escopo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get cargaKg => $composableBuilder(
+    column: $table.cargaKg,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<double> get cargaOriginalKg => $composableBuilder(
+    column: $table.cargaOriginalKg,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10346,6 +10736,29 @@ class $$SubstituicoesTableFilterComposer
     );
     return composer;
   }
+
+  $$TreinosTableFilterComposer get treinoId {
+    final $$TreinosTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.treinoId,
+      referencedTable: $db.treinos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TreinosTableFilterComposer(
+            $db: $db,
+            $table: $db.treinos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$SubstituicoesTableOrderingComposer
@@ -10384,6 +10797,16 @@ class $$SubstituicoesTableOrderingComposer
 
   ColumnOrderings<String> get escopo => $composableBuilder(
     column: $table.escopo,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get cargaKg => $composableBuilder(
+    column: $table.cargaKg,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<double> get cargaOriginalKg => $composableBuilder(
+    column: $table.cargaOriginalKg,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -10455,6 +10878,29 @@ class $$SubstituicoesTableOrderingComposer
     );
     return composer;
   }
+
+  $$TreinosTableOrderingComposer get treinoId {
+    final $$TreinosTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.treinoId,
+      referencedTable: $db.treinos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TreinosTableOrderingComposer(
+            $db: $db,
+            $table: $db.treinos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$SubstituicoesTableAnnotationComposer
@@ -10489,6 +10935,14 @@ class $$SubstituicoesTableAnnotationComposer
 
   GeneratedColumn<String> get escopo =>
       $composableBuilder(column: $table.escopo, builder: (column) => column);
+
+  GeneratedColumn<double> get cargaKg =>
+      $composableBuilder(column: $table.cargaKg, builder: (column) => column);
+
+  GeneratedColumn<double> get cargaOriginalKg => $composableBuilder(
+    column: $table.cargaOriginalKg,
+    builder: (column) => column,
+  );
 
   $$ItensPlanoTableAnnotationComposer get itemPlanoId {
     final $$ItensPlanoTableAnnotationComposer composer = $composerBuilder(
@@ -10558,6 +11012,29 @@ class $$SubstituicoesTableAnnotationComposer
     );
     return composer;
   }
+
+  $$TreinosTableAnnotationComposer get treinoId {
+    final $$TreinosTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.treinoId,
+      referencedTable: $db.treinos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TreinosTableAnnotationComposer(
+            $db: $db,
+            $table: $db.treinos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
 }
 
 class $$SubstituicoesTableTableManager
@@ -10577,6 +11054,7 @@ class $$SubstituicoesTableTableManager
             bool itemPlanoId,
             bool exercicioOriginalId,
             bool exercicioNovoId,
+            bool treinoId,
           })
         > {
   $$SubstituicoesTableTableManager(_$AppDatabase db, $SubstituicoesTable table)
@@ -10601,6 +11079,9 @@ class $$SubstituicoesTableTableManager
                 Value<String> exercicioOriginalId = const Value.absent(),
                 Value<String> exercicioNovoId = const Value.absent(),
                 Value<String> escopo = const Value.absent(),
+                Value<String?> treinoId = const Value.absent(),
+                Value<double?> cargaKg = const Value.absent(),
+                Value<double?> cargaOriginalKg = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SubstituicoesCompanion(
                 atualizadoEm: atualizadoEm,
@@ -10612,6 +11093,9 @@ class $$SubstituicoesTableTableManager
                 exercicioOriginalId: exercicioOriginalId,
                 exercicioNovoId: exercicioNovoId,
                 escopo: escopo,
+                treinoId: treinoId,
+                cargaKg: cargaKg,
+                cargaOriginalKg: cargaOriginalKg,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -10625,6 +11109,9 @@ class $$SubstituicoesTableTableManager
                 required String exercicioOriginalId,
                 required String exercicioNovoId,
                 required String escopo,
+                Value<String?> treinoId = const Value.absent(),
+                Value<double?> cargaKg = const Value.absent(),
+                Value<double?> cargaOriginalKg = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SubstituicoesCompanion.insert(
                 atualizadoEm: atualizadoEm,
@@ -10636,6 +11123,9 @@ class $$SubstituicoesTableTableManager
                 exercicioOriginalId: exercicioOriginalId,
                 exercicioNovoId: exercicioNovoId,
                 escopo: escopo,
+                treinoId: treinoId,
+                cargaKg: cargaKg,
+                cargaOriginalKg: cargaOriginalKg,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -10651,6 +11141,7 @@ class $$SubstituicoesTableTableManager
                 itemPlanoId = false,
                 exercicioOriginalId = false,
                 exercicioNovoId = false,
+                treinoId = false,
               }) {
                 return PrefetchHooks(
                   db: db,
@@ -10704,6 +11195,17 @@ class $$SubstituicoesTableTableManager
                                 .id,
                           ) as T;
                         }
+                        if (treinoId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.treinoId,
+                            referencedTable: $$SubstituicoesTableReferences
+                                ._treinoIdTable(db),
+                            referencedColumn: $$SubstituicoesTableReferences
+                                ._treinoIdTable(db)
+                                .id,
+                          ) as T;
+                        }
 
                         return state;
                       },
@@ -10732,6 +11234,7 @@ typedef $$SubstituicoesTableProcessedTableManager =
         bool itemPlanoId,
         bool exercicioOriginalId,
         bool exercicioNovoId,
+        bool treinoId,
       })
     >;
 typedef $$AjustesExecucaoTableCreateCompanionBuilder =
@@ -10745,6 +11248,8 @@ typedef $$AjustesExecucaoTableCreateCompanionBuilder =
       Value<bool> progressaoPr,
       Value<bool> aquecimento,
       Value<bool> novoZeroRespondido,
+      Value<bool> removido,
+      Value<bool> dor,
       Value<int> rowid,
     });
 typedef $$AjustesExecucaoTableUpdateCompanionBuilder =
@@ -10758,6 +11263,8 @@ typedef $$AjustesExecucaoTableUpdateCompanionBuilder =
       Value<bool> progressaoPr,
       Value<bool> aquecimento,
       Value<bool> novoZeroRespondido,
+      Value<bool> removido,
+      Value<bool> dor,
       Value<int> rowid,
     });
 
@@ -10846,6 +11353,16 @@ class $$AjustesExecucaoTableFilterComposer
 
   ColumnFilters<bool> get novoZeroRespondido => $composableBuilder(
     column: $table.novoZeroRespondido,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get removido => $composableBuilder(
+    column: $table.removido,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get dor => $composableBuilder(
+    column: $table.dor,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10940,6 +11457,16 @@ class $$AjustesExecucaoTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get removido => $composableBuilder(
+    column: $table.removido,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get dor => $composableBuilder(
+    column: $table.dor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$TreinosTableOrderingComposer get treinoId {
     final $$TreinosTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -11029,6 +11556,12 @@ class $$AjustesExecucaoTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<bool> get removido =>
+      $composableBuilder(column: $table.removido, builder: (column) => column);
+
+  GeneratedColumn<bool> get dor =>
+      $composableBuilder(column: $table.dor, builder: (column) => column);
+
   $$TreinosTableAnnotationComposer get treinoId {
     final $$TreinosTableAnnotationComposer composer = $composerBuilder(
       composer: this,
@@ -11115,6 +11648,8 @@ class $$AjustesExecucaoTableTableManager
                 Value<bool> progressaoPr = const Value.absent(),
                 Value<bool> aquecimento = const Value.absent(),
                 Value<bool> novoZeroRespondido = const Value.absent(),
+                Value<bool> removido = const Value.absent(),
+                Value<bool> dor = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AjustesExecucaoCompanion(
                 atualizadoEm: atualizadoEm,
@@ -11126,6 +11661,8 @@ class $$AjustesExecucaoTableTableManager
                 progressaoPr: progressaoPr,
                 aquecimento: aquecimento,
                 novoZeroRespondido: novoZeroRespondido,
+                removido: removido,
+                dor: dor,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -11139,6 +11676,8 @@ class $$AjustesExecucaoTableTableManager
                 Value<bool> progressaoPr = const Value.absent(),
                 Value<bool> aquecimento = const Value.absent(),
                 Value<bool> novoZeroRespondido = const Value.absent(),
+                Value<bool> removido = const Value.absent(),
+                Value<bool> dor = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AjustesExecucaoCompanion.insert(
                 atualizadoEm: atualizadoEm,
@@ -11150,6 +11689,8 @@ class $$AjustesExecucaoTableTableManager
                 progressaoPr: progressaoPr,
                 aquecimento: aquecimento,
                 novoZeroRespondido: novoZeroRespondido,
+                removido: removido,
+                dor: dor,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0

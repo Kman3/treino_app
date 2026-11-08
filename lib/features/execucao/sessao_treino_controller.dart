@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/db/app_database.dart';
 import '../../core/db/providers.dart';
+import '../../core/db/repositorios/exercicio_repository.dart';
 import '../../core/db/repositorios/plano_repository.dart';
 import '../../core/db/repositorios/preferencias_repository.dart';
 import '../../core/db/repositorios/treino_repository.dart';
@@ -23,9 +24,11 @@ class SessaoTreinoController {
     this._planos,
     this._treinos, {
     PreferenciasRepository? preferencias,
+    ExercicioRepository? exercicios,
     AvisoDescanso aviso = const AvisoDescansoNulo(),
     DateTime Function()? agora,
   }) : _preferencias = preferencias ?? PreferenciasRepository(_db),
+       _exercicios = exercicios ?? ExercicioRepository(_db, agora: agora),
        // Parâmetro nomeado não pode ser privado (`this._aviso`).
        // ignore: prefer_initializing_formals
        _aviso = aviso,
@@ -35,27 +38,45 @@ class SessaoTreinoController {
   final PlanoRepository _planos;
   final TreinoRepository _treinos;
   final PreferenciasRepository _preferencias;
+  final ExercicioRepository _exercicios;
   final AvisoDescanso _aviso;
   final DateTime Function() _agora;
 
-  /// Inicia um treino da sessão e devolve o id dele.
-  Future<String> iniciar(String sessaoPlanoId) async {
-    final treino = await _treinos.iniciar(sessaoPlanoId);
+  /// Inicia um treino da sessão e devolve o id dele. Com [vinteMinutos], o
+  /// treino usa a versão reduzida ("Só tenho 20 minutos"), sem mudar o plano.
+  Future<String> iniciar(
+    String sessaoPlanoId, {
+    bool vinteMinutos = false,
+  }) async {
+    final treino = await _treinos.iniciar(
+      sessaoPlanoId,
+      modo: vinteMinutos ? ModoTreino.vinteMin : ModoTreino.normal,
+    );
     return treino.id;
   }
 
   Future<EstadoExecucao?> carregar(String treinoId) async {
     final treino = await _treinos.treino(treinoId);
     if (treino == null) return null;
-    final sessao = await _planos.sessaoComItens(treino.sessaoPlanoId);
-    if (sessao == null) return null;
-    final exercicioIds = sessao.itens.map((i) => i.exercicio.id);
+    final doPlano = await _planos.sessaoComItens(treino.sessaoPlanoId);
+    if (doPlano == null) return null;
     final series = await _treinos.seriesDoTreino(treinoId);
+    final ajustes = await _treinos.ajustesDoTreino(treinoId);
+    final trocas = await _exercicios.trocasDoTreino(treinoId);
+    final montado = montarSessaoDoTreino(
+      doPlano,
+      treino: treino,
+      trocas: trocas,
+      catalogo: trocas.isEmpty ? const {} : await _exercicios.catalogo(),
+      ajustes: ajustes,
+      series: series,
+    );
+    final sessao = montado.sessao;
+    final exercicioIds = sessao.itens.map((i) => i.exercicio.id);
     final ultimaVez = await _treinos.ultimaVez(
       exercicioIds,
       excetoTreinoId: treinoId,
     );
-    final ajustes = await _treinos.ajustesDoTreino(treinoId);
     final preferencias = await _preferencias.obter();
     final recordes = await _treinos.recordes(
       exercicioIds,
@@ -72,6 +93,8 @@ class SessaoTreinoController {
           preferencias: preferencias,
           prAnterior: recordes,
           datasNovoPr: datas,
+          trocas: trocas,
+          removidos: montado.removidos,
         );
 
     final estado = montar();
@@ -97,8 +120,83 @@ class SessaoTreinoController {
           _db.itensPlano,
           _db.exercicios,
           _db.preferencias,
+          _db.substituicoes,
         })
         .asyncMap((_) => carregar(treinoId));
+  }
+
+  /// "⇄ Ocupado": troca o exercício por [novo], só neste treino ou para
+  /// sempre no plano. As séries já feitas ficam com o exercício antigo.
+  Future<Substituicao> trocar(
+    EstadoExecucao estado,
+    ItemComExercicio item,
+    Exercicio novo, {
+    required bool sempre,
+    required double? cargaKg,
+  }) async {
+    final anterior = estado.trocaDo(item);
+    if (!sempre) {
+      return _exercicios.trocarNoTreino(
+        treinoId: estado.treino.id,
+        item: item.item,
+        exercicioOriginalId: anterior?.exercicioOriginalId ?? item.exercicio.id,
+        exercicioNovoId: novo.id,
+        cargaKg: cargaKg,
+      );
+    }
+    // A troca deste treino daria lugar à do plano: sai antes.
+    if (anterior != null) await _exercicios.desfazerTroca(anterior);
+    return _exercicios.trocarSempre(
+      itemPlanoId: item.item.id,
+      exercicioNovoId: novo.id,
+      cargaKg: cargaKg,
+    );
+  }
+
+  Future<void> desfazerTroca(Substituicao troca) =>
+      _exercicios.desfazerTroca(troca);
+
+  /// "Senti dor": registra a dor nas séries já feitas do exercício e, com
+  /// [tirar], tira o exercício do resto deste treino. Devolve o que mudou,
+  /// para desfazer.
+  Future<RegistroDor> sentiDor(
+    EstadoExecucao estado,
+    ItemComExercicio item, {
+    required bool tirar,
+  }) async {
+    final treinoId = estado.treino.id;
+    final ids = await _treinos.marcarDor(
+      treinoId: treinoId,
+      itemPlanoId: item.item.id,
+      dor: true,
+    );
+    await _treinos.salvarAjuste(
+      treinoId: treinoId,
+      itemPlanoId: item.item.id,
+      dor: true,
+      removido: tirar ? true : null,
+    );
+    // O descanso de uma série desse exercício não faz mais sentido.
+    final descanso = estado.serieDoDescanso;
+    if (tirar && descanso?.itemPlanoId == item.item.id) {
+      await encerrarDescanso(estado);
+    }
+    return (itemPlanoId: item.item.id, seriesIds: ids);
+  }
+
+  Future<void> desfazerDor(EstadoExecucao estado, RegistroDor registro) async {
+    await _treinos.marcarDor(
+      treinoId: estado.treino.id,
+      itemPlanoId: registro.itemPlanoId,
+      dor: false,
+      apenas: registro.seriesIds,
+    );
+    await _treinos.salvarAjuste(
+      treinoId: estado.treino.id,
+      itemPlanoId: registro.itemPlanoId,
+      dor: false,
+      removido: false,
+    );
   }
 
   /// Liga ou desliga "Tentar bater o PR" no exercício. As séries já feitas
@@ -291,9 +389,13 @@ final sessaoTreinoControllerProvider = Provider(
     ref.watch(planoRepositoryProvider),
     ref.watch(treinoRepositoryProvider),
     preferencias: ref.watch(preferenciasRepositoryProvider),
+    exercicios: ref.watch(exercicioRepositoryProvider),
     aviso: ref.watch(avisoDescansoProvider),
   ),
 );
+
+/// O que "Senti dor" mudou: o exercício e as séries marcadas com dor.
+typedef RegistroDor = ({String itemPlanoId, List<String> seriesIds});
 
 /// Descartado ao sair da tela, para que reabrir o treino leia o banco de novo.
 final estadoExecucaoProvider = StreamProvider.autoDispose

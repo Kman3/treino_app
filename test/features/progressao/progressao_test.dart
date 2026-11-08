@@ -235,6 +235,34 @@ void main() {
     });
   });
 
+  group('1RM e substitutos', () {
+    test('Epley: 100 kg × 10 ≈ 133 kg; 1 rep é a própria carga', () {
+      expect(umRmEpley(100, 10), closeTo(133.33, 0.01));
+      expect(umRmEpley(80, 1), 80);
+    });
+
+    test('halter começa com ~40% da barra, arredondado', () {
+      expect(
+        cargaInicialSubstituto(
+          cargaOriginal: 60,
+          equipamentoOriginal: 'barra',
+          equipamentoNovo: 'halteres',
+          passoNovo: 1,
+        ),
+        24,
+      );
+      expect(
+        cargaInicialSubstituto(
+          cargaOriginal: 60,
+          equipamentoOriginal: 'barra',
+          equipamentoNovo: 'maquina',
+          passoNovo: 5,
+        ),
+        60,
+      );
+    });
+  });
+
   test('aquecimento: ~70% da carga, reps do mínimo da faixa', () {
     final plano = planoAquecimento(
       cargaBase: 60,

@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 
 import '../theme/tokens.dart';
+import 'icone_caramelo.dart';
 
 /// Barra inferior: Treino, Dieta (desabilitada na fase 1), Evolução e Perfil.
 ///
@@ -20,7 +21,8 @@ class BarraInferior extends StatelessWidget {
     _Item(Icons.fitness_center, 'Treino', indice: 0),
     _Item(Icons.restaurant_outlined, 'Dieta'),
     _Item(Icons.show_chart, 'Evolução', indice: 1),
-    _Item(Icons.person_outline, 'Perfil', indice: 2),
+    // O Perfil usa o ícone do app: o Caramelo é o "avatar" de quem treina.
+    _Item(null, 'Perfil', indice: 2),
   ];
 
   @override
@@ -54,7 +56,8 @@ class BarraInferior extends StatelessWidget {
 class _Item {
   const _Item(this.icone, this.rotulo, {this.indice});
 
-  final IconData icone;
+  /// Nulo = o ícone do app ([IconeCaramelo]).
+  final IconData? icone;
   final String rotulo;
   final int? indice;
 }
@@ -87,7 +90,14 @@ class _BotaoItem extends StatelessWidget {
               mainAxisSize: MainAxisSize.min,
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(item.icone, color: cor, size: 24),
+                if (item.icone case final icone?)
+                  Icon(icone, color: cor, size: 24)
+                else
+                  // Colorido, o ícone do app fica apagado fora da aba ativa.
+                  Opacity(
+                    opacity: ativo ? 1 : 0.55,
+                    child: const IconeCaramelo(tamanho: 24),
+                  ),
                 const SizedBox(height: Espacos.xs),
                 Text(
                   habilitado ? item.rotulo.toUpperCase() : 'EM BREVE',

@@ -8,6 +8,7 @@ import '../../core/theme/tokens.dart';
 import '../../core/widgets/botao_brasa.dart';
 import '../../core/formatacao.dart';
 import '../execucao/sessao_treino_controller.dart';
+import '../execucao/versao_reduzida.dart';
 import 'hoje_providers.dart';
 
 /// Tela 01 Hoje: o treino do dia lido do banco local, a prévia das outras
@@ -25,7 +26,10 @@ class _TelaHojeState extends ConsumerState<TelaHoje> {
   bool _iniciando = false;
 
   /// Continua o treino em andamento ou inicia um novo da sessão do dia.
-  Future<void> _abrirTreino(TreinoDoDia dia) async {
+  Future<void> _abrirTreino(
+    TreinoDoDia dia, {
+    bool vinteMinutos = false,
+  }) async {
     final emAndamento = dia.emAndamento;
     if (emAndamento != null) {
       context.go('/execucao/${emAndamento.id}');
@@ -36,11 +40,72 @@ class _TelaHojeState extends ConsumerState<TelaHoje> {
     try {
       final treinoId = await ref
           .read(sessaoTreinoControllerProvider)
-          .iniciar(dia.sessao.sessao.id);
+          .iniciar(dia.sessao.sessao.id, vinteMinutos: vinteMinutos);
       if (mounted) context.go('/execucao/$treinoId');
     } finally {
       if (mounted) setState(() => _iniciando = false);
     }
+  }
+
+  /// Prévia da versão de 20 minutos; "Começar" inicia o treino nela.
+  Future<void> _vinteMinutos(TreinoDoDia dia) async {
+    final reduzida = sessaoVinteMinutos(dia.sessao);
+    final comecar = await showModalBottomSheet<bool>(
+      context: context,
+      isScrollControlled: true,
+      backgroundColor: Cores.ferro800,
+      shape: const RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(Raios.painel)),
+      ),
+      builder: (context) => SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.all(Espacos.l),
+          child: SingleChildScrollView(
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                const Text('SÓ TENHO 20 MINUTOS', style: Textos.rotulo),
+                const SizedBox(height: Espacos.xs),
+                Text(
+                  'Treino ${reduzida.sessao.dia} · ~${reduzida.duracaoEstimadaMin} min',
+                  style: Textos.nome.copyWith(fontSize: 22),
+                ),
+                const SizedBox(height: Espacos.xs),
+                const Text(
+                  'Os exercícios principais, com 2 séries e até 60 s de '
+                  'descanso, nas mesmas cargas. O plano não muda.',
+                  style: Textos.secundario,
+                ),
+                const SizedBox(height: Espacos.l),
+                for (final i in reduzida.itens)
+                  Padding(
+                    padding: const EdgeInsets.only(bottom: Espacos.m),
+                    // Nome em cima, prescrição embaixo: cabe com texto em 200%.
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(i.exercicio.nome, style: Textos.corpo),
+                        Text(
+                          '${formatarPrescricao(i.item, i.exercicio)}'
+                          '${i.item.cargaPlanKg == null ? '' : ' · ${formatarKg(i.item.cargaPlanKg!)} kg'}',
+                          style: Textos.secundario,
+                        ),
+                      ],
+                    ),
+                  ),
+                const SizedBox(height: Espacos.l),
+                BotaoBrasa(
+                  rotulo: 'Começar versão de 20 min',
+                  onPressed: () => Navigator.pop(context, true),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    if (comecar == true && mounted) await _abrirTreino(dia, vinteMinutos: true);
   }
 
   @override
@@ -103,12 +168,32 @@ class _TelaHojeState extends ConsumerState<TelaHoje> {
               Espacos.l,
               Espacos.l,
             ),
-            child: BotaoBrasa(
-              rotulo: dia.emAndamento == null
-                  ? 'Começar treino'
-                  : 'Continuar treino',
-              carregando: _iniciando,
-              onPressed: () => _abrirTreino(dia),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.stretch,
+              children: [
+                if (dia.emAndamento == null)
+                  SizedBox(
+                    height: 48,
+                    child: TextButton.icon(
+                      style: TextButton.styleFrom(foregroundColor: Cores.giz),
+                      onPressed: _iniciando ? null : () => _vinteMinutos(dia),
+                      icon: const Icon(
+                        Icons.timer_outlined,
+                        size: 20,
+                        color: Cores.ferro400,
+                      ),
+                      label: const Text('Só tenho 20 minutos'),
+                    ),
+                  ),
+                BotaoBrasa(
+                  rotulo: dia.emAndamento == null
+                      ? 'Começar treino'
+                      : 'Continuar treino',
+                  carregando: _iniciando,
+                  onPressed: () => _abrirTreino(dia),
+                ),
+              ],
             ),
           ),
       ],
@@ -230,42 +315,46 @@ class _CartaoExercicio extends StatelessWidget {
     final carga = item.cargaPlanKg;
 
     return Card(
-      child: Padding(
-        padding: const EdgeInsets.all(Espacos.l),
-        child: Row(
-          children: [
-            Text(
-              (item.ordem + 1).toString().padLeft(2, '0'),
-              style: Textos.rotulo,
-            ),
-            const SizedBox(width: Espacos.m),
-            Expanded(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(exercicio.nome, style: Textos.nome),
-                  const SizedBox(height: Espacos.xs),
-                  Text(
-                    formatarPrescricao(item, exercicio),
-                    style: Textos.secundario,
-                  ),
-                ],
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: () => context.push('/exercicio/${exercicio.id}?item=${item.id}'),
+        child: Padding(
+          padding: const EdgeInsets.all(Espacos.l),
+          child: Row(
+            children: [
+              Text(
+                (item.ordem + 1).toString().padLeft(2, '0'),
+                style: Textos.rotulo,
               ),
-            ),
-            const SizedBox(width: Espacos.m),
-            if (exercicio.tipoCarga == TipoCarga.corporal)
-              const Text('CORPO', style: Textos.rotulo)
-            else if (carga != null)
-              Row(
-                crossAxisAlignment: CrossAxisAlignment.baseline,
-                textBaseline: TextBaseline.alphabetic,
-                children: [
-                  Text(formatarKg(carga), style: Textos.numeroLista),
-                  const SizedBox(width: 2),
-                  const Text('KG', style: Textos.rotulo),
-                ],
+              const SizedBox(width: Espacos.m),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(exercicio.nome, style: Textos.nome),
+                    const SizedBox(height: Espacos.xs),
+                    Text(
+                      formatarPrescricao(item, exercicio),
+                      style: Textos.secundario,
+                    ),
+                  ],
+                ),
               ),
-          ],
+              const SizedBox(width: Espacos.m),
+              if (exercicio.tipoCarga == TipoCarga.corporal)
+                const Text('CORPO', style: Textos.rotulo)
+              else if (carga != null)
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.baseline,
+                  textBaseline: TextBaseline.alphabetic,
+                  children: [
+                    Text(formatarKg(carga), style: Textos.numeroLista),
+                    const SizedBox(width: 2),
+                    const Text('KG', style: Textos.rotulo),
+                  ],
+                ),
+            ],
+          ),
         ),
       ),
     );
