@@ -1,0 +1,31 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  analisar-e-testar:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          flutter-version: 3.47.7
+          cache: true
+
+      - name: Instalar dependências
+        run: flutter pub get
+
+      - name: Conferir código gerado do drift
+        run: |
+          dart run build_runner build
+          git diff --exit-code -- lib
+
+      - name: Analisar
+        run: flutter analyze
+
+      - name: Testar
+        run: flutter test

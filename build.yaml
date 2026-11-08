@@ -1,0 +1,12 @@
+targets:
+  $default:
+    builders:
+      drift_dev:
+        options:
+          # Datas como texto ISO 8601, igual ao esquema da seção 5 do PRD
+          # e às colunas do Supabase.
+          store_date_time_values_as_text: true
+          databases:
+            app_database: lib/core/db/app_database.dart
+          schema_dir: drift_schemas/
+          test_dir: test/drift/

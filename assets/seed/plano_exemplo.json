@@ -1,0 +1,42 @@
+{
+  "divisao": "ABC",
+  "semanas": 4,
+  "sessoes": [
+    {
+      "dia": "A",
+      "foco": "Peito, ombros e tríceps",
+      "itens": [
+        {"exercicio": "supino-reto-barra", "series": 4, "reps_min": 6, "reps_max": 10, "rir_alvo": 2, "descanso_s": 150, "carga_plan_kg": 60, "justificativa": "Exercício base de empurrar na horizontal; permite progredir carga com segurança."},
+        {"exercicio": "supino-inclinado-halteres", "series": 3, "reps_min": 8, "reps_max": 12, "rir_alvo": 2, "descanso_s": 120, "carga_plan_kg": 22, "justificativa": "Ângulo inclinado enfatiza a porção superior do peitoral."},
+        {"exercicio": "desenvolvimento-halteres", "series": 3, "reps_min": 8, "reps_max": 12, "rir_alvo": 2, "descanso_s": 120, "carga_plan_kg": 18, "justificativa": "Empurrar na vertical completa o trabalho de ombros."},
+        {"exercicio": "elevacao-lateral-halteres", "series": 3, "reps_min": 12, "reps_max": 15, "rir_alvo": 1, "descanso_s": 60, "carga_plan_kg": 8, "justificativa": "Isola o deltoide lateral, pouco solicitado nos supinos."},
+        {"exercicio": "crucifixo-maquina", "series": 3, "reps_min": 10, "reps_max": 15, "rir_alvo": 1, "descanso_s": 75, "carga_plan_kg": 45, "justificativa": "Volume extra para o peitoral com baixa fadiga articular."},
+        {"exercicio": "triceps-polia-corda", "series": 3, "reps_min": 10, "reps_max": 15, "rir_alvo": 1, "descanso_s": 60, "carga_plan_kg": 25, "justificativa": "Finaliza o tríceps depois dos exercícios compostos."}
+      ]
+    },
+    {
+      "dia": "B",
+      "foco": "Costas e bíceps",
+      "itens": [
+        {"exercicio": "puxada-frente-polia", "series": 4, "reps_min": 8, "reps_max": 12, "rir_alvo": 2, "descanso_s": 120, "carga_plan_kg": 55, "justificativa": "Puxar na vertical para largura das costas."},
+        {"exercicio": "remada-curvada-barra", "series": 4, "reps_min": 6, "reps_max": 10, "rir_alvo": 2, "descanso_s": 150, "carga_plan_kg": 50, "justificativa": "Puxar na horizontal com carga alta para espessura das costas."},
+        {"exercicio": "remada-unilateral-halter", "series": 3, "reps_min": 8, "reps_max": 12, "rir_alvo": 2, "descanso_s": 90, "carga_plan_kg": 26, "justificativa": "Trabalho unilateral corrige diferenças entre os lados."},
+        {"exercicio": "face-pull-polia", "series": 3, "reps_min": 12, "reps_max": 15, "rir_alvo": 2, "descanso_s": 60, "carga_plan_kg": 20, "justificativa": "Fortalece deltoide posterior e estabilizadores do ombro."},
+        {"exercicio": "rosca-direta-barra", "series": 3, "reps_min": 8, "reps_max": 12, "rir_alvo": 1, "descanso_s": 75, "carga_plan_kg": 25, "justificativa": "Exercício principal de bíceps, fácil de progredir."},
+        {"exercicio": "rosca-martelo", "series": 3, "reps_min": 10, "reps_max": 12, "rir_alvo": 1, "descanso_s": 60, "carga_plan_kg": 12, "justificativa": "Pegada neutra recruta braquial e braquiorradial."}
+      ]
+    },
+    {
+      "dia": "C",
+      "foco": "Pernas e core",
+      "itens": [
+        {"exercicio": "agachamento-livre-barra", "series": 4, "reps_min": 6, "reps_max": 8, "rir_alvo": 2, "descanso_s": 180, "carga_plan_kg": 70, "justificativa": "Exercício base de membros inferiores."},
+        {"exercicio": "stiff-barra", "series": 3, "reps_min": 8, "reps_max": 10, "rir_alvo": 2, "descanso_s": 150, "carga_plan_kg": 60, "justificativa": "Dobrar o quadril trabalha isquiotibiais e glúteos."},
+        {"exercicio": "leg-press-45", "series": 3, "reps_min": 10, "reps_max": 12, "rir_alvo": 2, "descanso_s": 120, "carga_plan_kg": 160, "justificativa": "Volume para quadríceps com menos carga na coluna."},
+        {"exercicio": "mesa-flexora", "series": 3, "reps_min": 10, "reps_max": 15, "rir_alvo": 1, "descanso_s": 75, "carga_plan_kg": 40, "justificativa": "Isola a flexão do joelho, função que o stiff não cobre."},
+        {"exercicio": "panturrilha-em-pe-maquina", "series": 4, "reps_min": 10, "reps_max": 15, "rir_alvo": 1, "descanso_s": 60, "carga_plan_kg": 80, "justificativa": "Panturrilhas respondem bem a volume alto."},
+        {"exercicio": "prancha", "series": 3, "reps_min": 30, "reps_max": 45, "rir_alvo": null, "descanso_s": 60, "carga_plan_kg": null, "justificativa": "Estabilidade do tronco; a faixa é em segundos."}
+      ]
+    }
+  ]
+}

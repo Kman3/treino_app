@@ -1,0 +1,18 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+import 'app_database.dart';
+import 'repositorios/plano_repository.dart';
+import 'repositorios/treino_repository.dart';
+
+/// Substituído em `main.dart` (banco do aparelho) e nos testes (em memória).
+final databaseProvider = Provider<AppDatabase>(
+  (ref) => throw UnimplementedError('databaseProvider precisa de override'),
+);
+
+final planoRepositoryProvider = Provider(
+  (ref) => PlanoRepository(ref.watch(databaseProvider)),
+);
+
+final treinoRepositoryProvider = Provider(
+  (ref) => TreinoRepository(ref.watch(databaseProvider)),
+);
