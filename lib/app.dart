@@ -4,12 +4,25 @@ import 'package:go_router/go_router.dart';
 import 'core/theme/app_theme.dart';
 import 'core/widgets/barra_inferior.dart';
 import 'core/widgets/tela_em_construcao.dart';
+import 'features/execucao/tela_resumo.dart';
+import 'features/execucao/tela_serie.dart';
 import 'features/hoje/tela_hoje.dart';
 
 GoRouter criarRouter() {
   return GoRouter(
     initialLocation: '/treino',
     routes: [
+      // Fora do shell: durante o treino a barra inferior some.
+      GoRoute(
+        path: '/execucao/:treinoId',
+        builder: (_, state) =>
+            TelaSerie(treinoId: state.pathParameters['treinoId']!),
+      ),
+      GoRoute(
+        path: '/resumo/:treinoId',
+        builder: (_, state) =>
+            TelaResumo(treinoId: state.pathParameters['treinoId']!),
+      ),
       StatefulShellRoute.indexedStack(
         builder: (context, state, navegacao) => Scaffold(
           body: navegacao,

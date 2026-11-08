@@ -152,22 +152,25 @@ class PlanoRepository {
 
   /// Emite de novo sempre que plano, histórico ou catálogo mudam.
   Stream<TreinoDoDia?> watchTreinoDoDia() {
-    return _quandoMudar({
-      _db.planosTreino,
-      _db.sessoesPlano,
-      _db.itensPlano,
-      _db.exercicios,
-      _db.treinos,
-    }).asyncMap((_) => treinoDoDia());
+    return _db
+        .quandoMudar('treino_do_dia', {
+          _db.planosTreino,
+          _db.sessoesPlano,
+          _db.itensPlano,
+          _db.exercicios,
+          _db.treinos,
+        })
+        .asyncMap((_) => treinoDoDia());
   }
 
   Stream<SessaoComItens?> watchSessao(String sessaoId) {
-    return _quandoMudar({_db.sessoesPlano, _db.itensPlano, _db.exercicios})
+    return _db
+        .quandoMudar('sessao', {
+          _db.sessoesPlano,
+          _db.itensPlano,
+          _db.exercicios,
+        })
         .asyncMap((_) => sessaoComItens(sessaoId));
-  }
-
-  Stream<void> _quandoMudar(Set<ResultSetImplementation> tabelas) {
-    return _db.customSelect('SELECT 1', readsFrom: tabelas).watch();
   }
 
   int _semanaDoCiclo(PlanoTreino plano) {

@@ -10,7 +10,7 @@ void main() {
   setUp(() => db = abrirBancoDeTeste());
   tearDown(() => db.close());
 
-  test('cria as 7 tabelas da seção 5 do PRD', () async {
+  test('cria as tabelas da seção 5 do PRD e os ajustes de execução', () async {
     final linhas = await db
         .customSelect(
           "SELECT name FROM sqlite_master WHERE type = 'table' "
@@ -28,6 +28,7 @@ void main() {
         'treinos',
         'series',
         'substituicoes',
+        'ajustes_execucao',
       ]),
     );
   });
@@ -40,6 +41,7 @@ void main() {
       'treinos',
       'series',
       'substituicoes',
+      'ajustes_execucao',
     ]) {
       final colunas = await db
           .customSelect('PRAGMA table_info($tabela)')
@@ -107,6 +109,45 @@ void main() {
       throwsA(isA<Exception>()),
     );
   });
+
+  test(
+    'quandoMudar com chaves diferentes observa tabelas diferentes',
+    () async {
+      await popularSeedDeTeste(db);
+      final sessao = (await db.select(db.sessoesPlano).get()).first;
+
+      // Abre primeiro um observador que não olha `series`: com SQL igual, o
+      // drift reaproveitaria este stream para o segundo.
+      final semSeries = db.quandoMudar('a', {db.treinos}).listen((_) {});
+      addTearDown(semSeries.cancel);
+
+      final emissoes = db.quandoMudar('b', {db.series}).take(2).toList();
+      await Future<void>.delayed(Duration.zero);
+
+      await db
+          .into(db.treinos)
+          .insert(
+            TreinosCompanion.insert(
+              id: 't1',
+              sessaoPlanoId: sessao.id,
+              iniciadoEm: DateTime(2026, 11, 8),
+            ),
+          );
+      await db
+          .into(db.series)
+          .insert(
+            SeriesCompanion.insert(
+              id: 's1',
+              treinoId: 't1',
+              exercicioId: 'supino-reto-barra',
+              numero: 1,
+              registradaEm: DateTime(2026, 11, 8),
+            ),
+          );
+
+      expect(await emissoes.timeout(const Duration(seconds: 2)), hasLength(2));
+    },
+  );
 
   test('datas ficam gravadas como texto ISO 8601', () async {
     await popularSeedDeTeste(db, agora: DateTime(2026, 10, 20, 15));

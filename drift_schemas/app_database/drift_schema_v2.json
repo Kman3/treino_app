@@ -1,0 +1,1429 @@
+{
+  "_meta": {
+    "description": "This file contains a serialized version of schema entities for drift.",
+    "version": "1.3.0"
+  },
+  "options": {
+    "store_date_time_values_as_text": true
+  },
+  "entities": [
+    {
+      "id": 0,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "exercicios",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "nome",
+            "getter_name": "nome",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "musculos_alvo",
+            "getter_name": "musculosAlvo",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "padrao_movimento",
+            "getter_name": "padraoMovimento",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "equipamento",
+            "getter_name": "equipamento",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "tipo_carga",
+            "getter_name": "tipoCarga",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "check": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "tipoCarga",
+                        "tag": "tipoCarga"
+                      },
+                      ".isIn(",
+                      {
+                        "lexeme": "TipoCarga",
+                        "import_uri": "package:treino_app/core/db/tables.dart"
+                      },
+                      ".todos)"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "passo_carga_kg",
+            "getter_name": "passoCargaKg",
+            "moor_type": "double",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": "const CustomExpression('2.5')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "video_url",
+            "getter_name": "videoUrl",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "fonte_id",
+            "getter_name": "fonteId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 1,
+      "references": [],
+      "type": "table",
+      "data": {
+        "name": "planos_treino",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "atualizado_em",
+            "getter_name": "atualizadoEm",
+            "moor_type": "dateTime",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": "DateTime.now",
+            "dsl_features": []
+          },
+          {
+            "name": "excluido_em",
+            "getter_name": "excluidoEm",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sincronizado_em",
+            "getter_name": "sincronizadoEm",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "usuario_id",
+            "getter_name": "usuarioId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "divisao",
+            "getter_name": "divisao",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "semanas",
+            "getter_name": "semanas",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "inicio_em",
+            "getter_name": "inicioEm",
+            "moor_type": "dateTime",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "versao",
+            "getter_name": "versao",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": "const CustomExpression('1')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "ativo",
+            "getter_name": "ativo",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"ativo\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"ativo\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('1')",
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 2,
+      "references": [
+        1
+      ],
+      "type": "table",
+      "data": {
+        "name": "sessoes_plano",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "atualizado_em",
+            "getter_name": "atualizadoEm",
+            "moor_type": "dateTime",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": "DateTime.now",
+            "dsl_features": []
+          },
+          {
+            "name": "excluido_em",
+            "getter_name": "excluidoEm",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sincronizado_em",
+            "getter_name": "sincronizadoEm",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "plano_id",
+            "getter_name": "planoId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES planos_treino (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES planos_treino (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "planos_treino",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "dia",
+            "getter_name": "dia",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "foco",
+            "getter_name": "foco",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "ordem",
+            "getter_name": "ordem",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 3,
+      "references": [
+        2,
+        0
+      ],
+      "type": "table",
+      "data": {
+        "name": "itens_plano",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "atualizado_em",
+            "getter_name": "atualizadoEm",
+            "moor_type": "dateTime",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": "DateTime.now",
+            "dsl_features": []
+          },
+          {
+            "name": "excluido_em",
+            "getter_name": "excluidoEm",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sincronizado_em",
+            "getter_name": "sincronizadoEm",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sessao_plano_id",
+            "getter_name": "sessaoPlanoId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES sessoes_plano (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES sessoes_plano (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "sessoes_plano",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "exercicio_id",
+            "getter_name": "exercicioId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES exercicios (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES exercicios (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "exercicios",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "ordem",
+            "getter_name": "ordem",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "series",
+            "getter_name": "series",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "reps_min",
+            "getter_name": "repsMin",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "reps_max",
+            "getter_name": "repsMax",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "rir_alvo",
+            "getter_name": "rirAlvo",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "descanso_s",
+            "getter_name": "descansoS",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "carga_plan_kg",
+            "getter_name": "cargaPlanKg",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "justificativa",
+            "getter_name": "justificativa",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "fonte_id",
+            "getter_name": "fonteId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 4,
+      "references": [
+        2
+      ],
+      "type": "table",
+      "data": {
+        "name": "treinos",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "atualizado_em",
+            "getter_name": "atualizadoEm",
+            "moor_type": "dateTime",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": "DateTime.now",
+            "dsl_features": []
+          },
+          {
+            "name": "excluido_em",
+            "getter_name": "excluidoEm",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sincronizado_em",
+            "getter_name": "sincronizadoEm",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "usuario_id",
+            "getter_name": "usuarioId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sessao_plano_id",
+            "getter_name": "sessaoPlanoId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES sessoes_plano (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES sessoes_plano (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "sessoes_plano",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "iniciado_em",
+            "getter_name": "iniciadoEm",
+            "moor_type": "dateTime",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "finalizado_em",
+            "getter_name": "finalizadoEm",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "status",
+            "getter_name": "status",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": "const CustomExpression('\\'andamento\\'')",
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "check": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "status",
+                        "tag": "status"
+                      },
+                      ".isIn(",
+                      {
+                        "lexeme": "StatusTreino",
+                        "import_uri": "package:treino_app/core/db/tables.dart"
+                      },
+                      ".todos)"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "modo",
+            "getter_name": "modo",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": "const CustomExpression('\\'normal\\'')",
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "check": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "modo",
+                        "tag": "modo"
+                      },
+                      ".isIn(",
+                      {
+                        "lexeme": "ModoTreino",
+                        "import_uri": "package:treino_app/core/db/tables.dart"
+                      },
+                      ".todos)"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 5,
+      "references": [
+        4,
+        3,
+        0
+      ],
+      "type": "table",
+      "data": {
+        "name": "series",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "atualizado_em",
+            "getter_name": "atualizadoEm",
+            "moor_type": "dateTime",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": "DateTime.now",
+            "dsl_features": []
+          },
+          {
+            "name": "excluido_em",
+            "getter_name": "excluidoEm",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sincronizado_em",
+            "getter_name": "sincronizadoEm",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "treino_id",
+            "getter_name": "treinoId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES treinos (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES treinos (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "treinos",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "item_plano_id",
+            "getter_name": "itemPlanoId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES itens_plano (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES itens_plano (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "itens_plano",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "exercicio_id",
+            "getter_name": "exercicioId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES exercicios (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES exercicios (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "exercicios",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "numero",
+            "getter_name": "numero",
+            "moor_type": "int",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "carga_plan_kg",
+            "getter_name": "cargaPlanKg",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "reps_plan",
+            "getter_name": "repsPlan",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "carga_kg",
+            "getter_name": "cargaKg",
+            "moor_type": "double",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "reps",
+            "getter_name": "reps",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "rir",
+            "getter_name": "rir",
+            "moor_type": "int",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "check": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "ComparableExpr",
+                        "import_uri": "package:drift/src/runtime/query_builder/query_builder.dart"
+                      },
+                      "(",
+                      {
+                        "lexeme": "rir",
+                        "tag": "rir"
+                      },
+                      ").isBetweenValues(0,4)"
+                    ]
+                  }
+                }
+              }
+            ]
+          },
+          {
+            "name": "confirmado",
+            "getter_name": "confirmado",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"confirmado\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"confirmado\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "editado",
+            "getter_name": "editado",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"editado\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"editado\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "dor",
+            "getter_name": "dor",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"dor\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"dor\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "aquecimento",
+            "getter_name": "aquecimento",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"aquecimento\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"aquecimento\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "registrada_em",
+            "getter_name": "registradaEm",
+            "moor_type": "dateTime",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 6,
+      "references": [
+        3,
+        0
+      ],
+      "type": "table",
+      "data": {
+        "name": "substituicoes",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "atualizado_em",
+            "getter_name": "atualizadoEm",
+            "moor_type": "dateTime",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": "DateTime.now",
+            "dsl_features": []
+          },
+          {
+            "name": "excluido_em",
+            "getter_name": "excluidoEm",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sincronizado_em",
+            "getter_name": "sincronizadoEm",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "usuario_id",
+            "getter_name": "usuarioId",
+            "moor_type": "string",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "item_plano_id",
+            "getter_name": "itemPlanoId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES itens_plano (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES itens_plano (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "itens_plano",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "exercicio_original_id",
+            "getter_name": "exercicioOriginalId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES exercicios (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES exercicios (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "exercicios",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "exercicio_novo_id",
+            "getter_name": "exercicioNovoId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES exercicios (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES exercicios (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "exercicios",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "escopo",
+            "getter_name": "escopo",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "check": {
+                  "dart_expression": {
+                    "elements": [
+                      {
+                        "lexeme": "escopo",
+                        "tag": "escopo"
+                      },
+                      ".isIn(",
+                      {
+                        "lexeme": "EscopoSubstituicao",
+                        "import_uri": "package:treino_app/core/db/tables.dart"
+                      },
+                      ".todos)"
+                    ]
+                  }
+                }
+              }
+            ]
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "id"
+        ]
+      }
+    },
+    {
+      "id": 7,
+      "references": [
+        4,
+        3
+      ],
+      "type": "table",
+      "data": {
+        "name": "ajustes_execucao",
+        "was_declared_in_moor": false,
+        "columns": [
+          {
+            "name": "atualizado_em",
+            "getter_name": "atualizadoEm",
+            "moor_type": "dateTime",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": "DateTime.now",
+            "dsl_features": []
+          },
+          {
+            "name": "excluido_em",
+            "getter_name": "excluidoEm",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "sincronizado_em",
+            "getter_name": "sincronizadoEm",
+            "moor_type": "dateTime",
+            "nullable": true,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "id",
+            "getter_name": "id",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "treino_id",
+            "getter_name": "treinoId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES treinos (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES treinos (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "treinos",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "item_plano_id",
+            "getter_name": "itemPlanoId",
+            "moor_type": "string",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "REFERENCES itens_plano (id)",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "REFERENCES itens_plano (id)"
+            },
+            "default_dart": null,
+            "default_client_dart": null,
+            "dsl_features": [
+              {
+                "foreign_key": {
+                  "to": {
+                    "table": "itens_plano",
+                    "column": "id"
+                  },
+                  "initially_deferred": false,
+                  "on_update": null,
+                  "on_delete": null
+                }
+              }
+            ]
+          },
+          {
+            "name": "progressao_pr",
+            "getter_name": "progressaoPr",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"progressao_pr\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"progressao_pr\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          },
+          {
+            "name": "aquecimento",
+            "getter_name": "aquecimento",
+            "moor_type": "bool",
+            "nullable": false,
+            "customConstraints": null,
+            "defaultConstraints": "CHECK (\"aquecimento\" IN (0, 1))",
+            "dialectAwareDefaultConstraints": {
+              "sqlite": "CHECK (\"aquecimento\" IN (0, 1))"
+            },
+            "default_dart": "const CustomExpression('0')",
+            "default_client_dart": null,
+            "dsl_features": []
+          }
+        ],
+        "is_virtual": false,
+        "without_rowid": false,
+        "constraints": [],
+        "explicit_pk": [
+          "id"
+        ],
+        "unique_keys": [
+          [
+            "treino_id",
+            "item_plano_id"
+          ]
+        ]
+      }
+    }
+  ],
+  "fixed_sql": [
+    {
+      "name": "exercicios",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"exercicios\" (\"id\" TEXT NOT NULL, \"nome\" TEXT NOT NULL, \"musculos_alvo\" TEXT NOT NULL, \"padrao_movimento\" TEXT NOT NULL, \"equipamento\" TEXT NOT NULL, \"tipo_carga\" TEXT NOT NULL CHECK(\"tipo_carga\" IN ('externa', 'corporal', 'tempo')), \"passo_carga_kg\" REAL NOT NULL DEFAULT 2.5, \"video_url\" TEXT NULL, \"fonte_id\" TEXT NULL, PRIMARY KEY (\"id\"));"
+        }
+      ]
+    },
+    {
+      "name": "planos_treino",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"planos_treino\" (\"atualizado_em\" TEXT NOT NULL, \"excluido_em\" TEXT NULL, \"sincronizado_em\" TEXT NULL, \"id\" TEXT NOT NULL, \"usuario_id\" TEXT NULL, \"divisao\" TEXT NOT NULL, \"semanas\" INTEGER NOT NULL, \"inicio_em\" TEXT NOT NULL, \"versao\" INTEGER NOT NULL DEFAULT 1, \"ativo\" INTEGER NOT NULL DEFAULT 1 CHECK (\"ativo\" IN (0, 1)), PRIMARY KEY (\"id\"));"
+        }
+      ]
+    },
+    {
+      "name": "sessoes_plano",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"sessoes_plano\" (\"atualizado_em\" TEXT NOT NULL, \"excluido_em\" TEXT NULL, \"sincronizado_em\" TEXT NULL, \"id\" TEXT NOT NULL, \"plano_id\" TEXT NOT NULL REFERENCES planos_treino (id), \"dia\" TEXT NOT NULL, \"foco\" TEXT NOT NULL, \"ordem\" INTEGER NOT NULL, PRIMARY KEY (\"id\"));"
+        }
+      ]
+    },
+    {
+      "name": "itens_plano",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"itens_plano\" (\"atualizado_em\" TEXT NOT NULL, \"excluido_em\" TEXT NULL, \"sincronizado_em\" TEXT NULL, \"id\" TEXT NOT NULL, \"sessao_plano_id\" TEXT NOT NULL REFERENCES sessoes_plano (id), \"exercicio_id\" TEXT NOT NULL REFERENCES exercicios (id), \"ordem\" INTEGER NOT NULL, \"series\" INTEGER NOT NULL, \"reps_min\" INTEGER NOT NULL, \"reps_max\" INTEGER NOT NULL, \"rir_alvo\" INTEGER NULL, \"descanso_s\" INTEGER NOT NULL, \"carga_plan_kg\" REAL NULL, \"justificativa\" TEXT NULL, \"fonte_id\" TEXT NULL, PRIMARY KEY (\"id\"));"
+        }
+      ]
+    },
+    {
+      "name": "treinos",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"treinos\" (\"atualizado_em\" TEXT NOT NULL, \"excluido_em\" TEXT NULL, \"sincronizado_em\" TEXT NULL, \"id\" TEXT NOT NULL, \"usuario_id\" TEXT NULL, \"sessao_plano_id\" TEXT NOT NULL REFERENCES sessoes_plano (id), \"iniciado_em\" TEXT NOT NULL, \"finalizado_em\" TEXT NULL, \"status\" TEXT NOT NULL DEFAULT 'andamento' CHECK(\"status\" IN ('andamento', 'concluido', 'parcial')), \"modo\" TEXT NOT NULL DEFAULT 'normal' CHECK(\"modo\" IN ('normal', '20min')), PRIMARY KEY (\"id\"));"
+        }
+      ]
+    },
+    {
+      "name": "series",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"series\" (\"atualizado_em\" TEXT NOT NULL, \"excluido_em\" TEXT NULL, \"sincronizado_em\" TEXT NULL, \"id\" TEXT NOT NULL, \"treino_id\" TEXT NOT NULL REFERENCES treinos (id), \"item_plano_id\" TEXT NULL REFERENCES itens_plano (id), \"exercicio_id\" TEXT NOT NULL REFERENCES exercicios (id), \"numero\" INTEGER NOT NULL, \"carga_plan_kg\" REAL NULL, \"reps_plan\" INTEGER NULL, \"carga_kg\" REAL NULL, \"reps\" INTEGER NULL, \"rir\" INTEGER NULL CHECK(\"rir\" BETWEEN 0 AND 4), \"confirmado\" INTEGER NOT NULL DEFAULT 0 CHECK (\"confirmado\" IN (0, 1)), \"editado\" INTEGER NOT NULL DEFAULT 0 CHECK (\"editado\" IN (0, 1)), \"dor\" INTEGER NOT NULL DEFAULT 0 CHECK (\"dor\" IN (0, 1)), \"aquecimento\" INTEGER NOT NULL DEFAULT 0 CHECK (\"aquecimento\" IN (0, 1)), \"registrada_em\" TEXT NOT NULL, PRIMARY KEY (\"id\"));"
+        }
+      ]
+    },
+    {
+      "name": "substituicoes",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"substituicoes\" (\"atualizado_em\" TEXT NOT NULL, \"excluido_em\" TEXT NULL, \"sincronizado_em\" TEXT NULL, \"id\" TEXT NOT NULL, \"usuario_id\" TEXT NULL, \"item_plano_id\" TEXT NOT NULL REFERENCES itens_plano (id), \"exercicio_original_id\" TEXT NOT NULL REFERENCES exercicios (id), \"exercicio_novo_id\" TEXT NOT NULL REFERENCES exercicios (id), \"escopo\" TEXT NOT NULL CHECK(\"escopo\" IN ('sessao', 'sempre')), PRIMARY KEY (\"id\"));"
+        }
+      ]
+    },
+    {
+      "name": "ajustes_execucao",
+      "sql": [
+        {
+          "dialect": "sqlite",
+          "sql": "CREATE TABLE IF NOT EXISTS \"ajustes_execucao\" (\"atualizado_em\" TEXT NOT NULL, \"excluido_em\" TEXT NULL, \"sincronizado_em\" TEXT NULL, \"id\" TEXT NOT NULL, \"treino_id\" TEXT NOT NULL REFERENCES treinos (id), \"item_plano_id\" TEXT NOT NULL REFERENCES itens_plano (id), \"progressao_pr\" INTEGER NOT NULL DEFAULT 0 CHECK (\"progressao_pr\" IN (0, 1)), \"aquecimento\" INTEGER NOT NULL DEFAULT 0 CHECK (\"aquecimento\" IN (0, 1)), PRIMARY KEY (\"id\"), UNIQUE (\"treino_id\", \"item_plano_id\"));"
+        }
+      ]
+    }
+  ]
+}

@@ -1,15 +1,17 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
 
 import '../../core/db/app_database.dart';
 import '../../core/db/repositorios/plano_repository.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/botao_brasa.dart';
-import 'formatacao.dart';
+import '../../core/formatacao.dart';
+import '../execucao/sessao_treino_controller.dart';
 import 'hoje_providers.dart';
 
-/// Tela 01 Hoje, versão provisória da etapa 1: mostra o treino do dia lido do
-/// banco local e permite ver a prévia das outras sessões do ciclo.
+/// Tela 01 Hoje: o treino do dia lido do banco local, a prévia das outras
+/// sessões do ciclo e a retomada de um treino em andamento.
 class TelaHoje extends ConsumerStatefulWidget {
   const TelaHoje({super.key});
 
@@ -20,6 +22,26 @@ class TelaHoje extends ConsumerStatefulWidget {
 class _TelaHojeState extends ConsumerState<TelaHoje> {
   /// Sessão escolhida no cabeçalho; nula = a do dia.
   String? _sessaoPreviaId;
+  bool _iniciando = false;
+
+  /// Continua o treino em andamento ou inicia um novo da sessão do dia.
+  Future<void> _abrirTreino(TreinoDoDia dia) async {
+    final emAndamento = dia.emAndamento;
+    if (emAndamento != null) {
+      context.go('/execucao/${emAndamento.id}');
+      return;
+    }
+    if (_iniciando) return;
+    setState(() => _iniciando = true);
+    try {
+      final treinoId = await ref
+          .read(sessaoTreinoControllerProvider)
+          .iniciar(dia.sessao.sessao.id);
+      if (mounted) context.go('/execucao/$treinoId');
+    } finally {
+      if (mounted) setState(() => _iniciando = false);
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -85,11 +107,8 @@ class _TelaHojeState extends ConsumerState<TelaHoje> {
               rotulo: dia.emAndamento == null
                   ? 'Começar treino'
                   : 'Continuar treino',
-              onPressed: () => ScaffoldMessenger.of(context).showSnackBar(
-                const SnackBar(
-                  content: Text('A execução do treino chega na etapa 2.'),
-                ),
-              ),
+              carregando: _iniciando,
+              onPressed: () => _abrirTreino(dia),
             ),
           ),
       ],
@@ -102,6 +121,21 @@ class _TelaHojeState extends ConsumerState<TelaHoje> {
     required TreinoDoDia dia,
   }) {
     return [
+      if (ehDoDia && dia.emAndamento != null) ...[
+        Container(
+          padding: const EdgeInsets.all(Espacos.m),
+          decoration: BoxDecoration(
+            color: Cores.ferro800,
+            borderRadius: BorderRadius.circular(Raios.cartao),
+            border: Border.all(color: Cores.brasa),
+          ),
+          child: Text(
+            'Treino ${sessao.sessao.dia} em andamento — continuar?',
+            style: Textos.corpo,
+          ),
+        ),
+        const SizedBox(height: Espacos.l),
+      ],
       if (!ehDoDia) ...[
         Text(
           'PRÉVIA · HOJE É O TREINO ${dia.sessao.sessao.dia}',

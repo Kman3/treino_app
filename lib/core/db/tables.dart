@@ -146,10 +146,37 @@ class Series extends Table with ColunasSync {
   BoolColumn get confirmado => boolean().withDefault(const Constant(false))();
   BoolColumn get editado => boolean().withDefault(const Constant(false))();
   BoolColumn get dor => boolean().withDefault(const Constant(false))();
+
+  /// Série extra de aquecimento (número 0). Fica fora do volume e da
+  /// progressão. Versão 2 do esquema.
+  BoolColumn get aquecimento => boolean().withDefault(const Constant(false))();
   DateTimeColumn get registradaEm => dateTime()();
 
   @override
   Set<Column> get primaryKey => {id};
+}
+
+/// Escolhas feitas para um exercício dentro de um treino: progressão até o
+/// PR e série extra de aquecimento. Versão 2 do esquema.
+@DataClassName('AjusteExecucao')
+class AjustesExecucao extends Table with ColunasSync {
+  TextColumn get id => text()();
+  TextColumn get treinoId => text().references(Treinos, #id)();
+  TextColumn get itemPlanoId => text().references(ItensPlano, #id)();
+
+  /// Carga progressiva entre as séries até 120% ("Tentar bater o PR").
+  BoolColumn get progressaoPr => boolean().withDefault(const Constant(false))();
+
+  /// Série extra de aquecimento pedida antes das séries do plano.
+  BoolColumn get aquecimento => boolean().withDefault(const Constant(false))();
+
+  @override
+  Set<Column> get primaryKey => {id};
+
+  @override
+  List<Set<Column>> get uniqueKeys => [
+    {treinoId, itemPlanoId},
+  ];
 }
 
 /// Origem: botão "Ocupado".

@@ -3452,6 +3452,21 @@ class $SeriesTable extends Series with TableInfo<$SeriesTable, Serie> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _aquecimentoMeta = const VerificationMeta(
+    'aquecimento',
+  );
+  @override
+  late final GeneratedColumn<bool> aquecimento = GeneratedColumn<bool>(
+    'aquecimento',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("aquecimento" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _registradaEmMeta = const VerificationMeta(
     'registradaEm',
   );
@@ -3481,6 +3496,7 @@ class $SeriesTable extends Series with TableInfo<$SeriesTable, Serie> {
     confirmado,
     editado,
     dor,
+    aquecimento,
     registradaEm,
   ];
   @override
@@ -3611,6 +3627,15 @@ class $SeriesTable extends Series with TableInfo<$SeriesTable, Serie> {
         dor.isAcceptableOrUnknown(data['dor']!, _dorMeta),
       );
     }
+    if (data.containsKey('aquecimento')) {
+      context.handle(
+        _aquecimentoMeta,
+        aquecimento.isAcceptableOrUnknown(
+          data['aquecimento']!,
+          _aquecimentoMeta,
+        ),
+      );
+    }
     if (data.containsKey('registrada_em')) {
       context.handle(
         _registradaEmMeta,
@@ -3695,6 +3720,10 @@ class $SeriesTable extends Series with TableInfo<$SeriesTable, Serie> {
         DriftSqlType.bool,
         data['${effectivePrefix}dor'],
       )!,
+      aquecimento: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}aquecimento'],
+      )!,
       registradaEm: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}registrada_em'],
@@ -3725,6 +3754,10 @@ class Serie extends DataClass implements Insertable<Serie> {
   final bool confirmado;
   final bool editado;
   final bool dor;
+
+  /// Série extra de aquecimento (número 0). Fica fora do volume e da
+  /// progressão. Versão 2 do esquema.
+  final bool aquecimento;
   final DateTime registradaEm;
   const Serie({
     required this.atualizadoEm,
@@ -3743,6 +3776,7 @@ class Serie extends DataClass implements Insertable<Serie> {
     required this.confirmado,
     required this.editado,
     required this.dor,
+    required this.aquecimento,
     required this.registradaEm,
   });
   @override
@@ -3780,6 +3814,7 @@ class Serie extends DataClass implements Insertable<Serie> {
     map['confirmado'] = Variable<bool>(confirmado);
     map['editado'] = Variable<bool>(editado);
     map['dor'] = Variable<bool>(dor);
+    map['aquecimento'] = Variable<bool>(aquecimento);
     map['registrada_em'] = Variable<DateTime>(registradaEm);
     return map;
   }
@@ -3814,6 +3849,7 @@ class Serie extends DataClass implements Insertable<Serie> {
       confirmado: Value(confirmado),
       editado: Value(editado),
       dor: Value(dor),
+      aquecimento: Value(aquecimento),
       registradaEm: Value(registradaEm),
     );
   }
@@ -3840,6 +3876,7 @@ class Serie extends DataClass implements Insertable<Serie> {
       confirmado: serializer.fromJson<bool>(json['confirmado']),
       editado: serializer.fromJson<bool>(json['editado']),
       dor: serializer.fromJson<bool>(json['dor']),
+      aquecimento: serializer.fromJson<bool>(json['aquecimento']),
       registradaEm: serializer.fromJson<DateTime>(json['registradaEm']),
     );
   }
@@ -3863,6 +3900,7 @@ class Serie extends DataClass implements Insertable<Serie> {
       'confirmado': serializer.toJson<bool>(confirmado),
       'editado': serializer.toJson<bool>(editado),
       'dor': serializer.toJson<bool>(dor),
+      'aquecimento': serializer.toJson<bool>(aquecimento),
       'registradaEm': serializer.toJson<DateTime>(registradaEm),
     };
   }
@@ -3884,6 +3922,7 @@ class Serie extends DataClass implements Insertable<Serie> {
     bool? confirmado,
     bool? editado,
     bool? dor,
+    bool? aquecimento,
     DateTime? registradaEm,
   }) => Serie(
     atualizadoEm: atualizadoEm ?? this.atualizadoEm,
@@ -3904,6 +3943,7 @@ class Serie extends DataClass implements Insertable<Serie> {
     confirmado: confirmado ?? this.confirmado,
     editado: editado ?? this.editado,
     dor: dor ?? this.dor,
+    aquecimento: aquecimento ?? this.aquecimento,
     registradaEm: registradaEm ?? this.registradaEm,
   );
   Serie copyWithCompanion(SeriesCompanion data) {
@@ -3938,6 +3978,9 @@ class Serie extends DataClass implements Insertable<Serie> {
           : this.confirmado,
       editado: data.editado.present ? data.editado.value : this.editado,
       dor: data.dor.present ? data.dor.value : this.dor,
+      aquecimento: data.aquecimento.present
+          ? data.aquecimento.value
+          : this.aquecimento,
       registradaEm: data.registradaEm.present
           ? data.registradaEm.value
           : this.registradaEm,
@@ -3963,6 +4006,7 @@ class Serie extends DataClass implements Insertable<Serie> {
           ..write('confirmado: $confirmado, ')
           ..write('editado: $editado, ')
           ..write('dor: $dor, ')
+          ..write('aquecimento: $aquecimento, ')
           ..write('registradaEm: $registradaEm')
           ..write(')'))
         .toString();
@@ -3986,6 +4030,7 @@ class Serie extends DataClass implements Insertable<Serie> {
     confirmado,
     editado,
     dor,
+    aquecimento,
     registradaEm,
   );
   @override
@@ -4008,6 +4053,7 @@ class Serie extends DataClass implements Insertable<Serie> {
           other.confirmado == this.confirmado &&
           other.editado == this.editado &&
           other.dor == this.dor &&
+          other.aquecimento == this.aquecimento &&
           other.registradaEm == this.registradaEm);
 }
 
@@ -4028,6 +4074,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
   final Value<bool> confirmado;
   final Value<bool> editado;
   final Value<bool> dor;
+  final Value<bool> aquecimento;
   final Value<DateTime> registradaEm;
   final Value<int> rowid;
   const SeriesCompanion({
@@ -4047,6 +4094,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
     this.confirmado = const Value.absent(),
     this.editado = const Value.absent(),
     this.dor = const Value.absent(),
+    this.aquecimento = const Value.absent(),
     this.registradaEm = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -4067,6 +4115,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
     this.confirmado = const Value.absent(),
     this.editado = const Value.absent(),
     this.dor = const Value.absent(),
+    this.aquecimento = const Value.absent(),
     required DateTime registradaEm,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -4091,6 +4140,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
     Expression<bool>? confirmado,
     Expression<bool>? editado,
     Expression<bool>? dor,
+    Expression<bool>? aquecimento,
     Expression<DateTime>? registradaEm,
     Expression<int>? rowid,
   }) {
@@ -4111,6 +4161,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
       if (confirmado != null) 'confirmado': confirmado,
       if (editado != null) 'editado': editado,
       if (dor != null) 'dor': dor,
+      if (aquecimento != null) 'aquecimento': aquecimento,
       if (registradaEm != null) 'registrada_em': registradaEm,
       if (rowid != null) 'rowid': rowid,
     });
@@ -4133,6 +4184,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
     Value<bool>? confirmado,
     Value<bool>? editado,
     Value<bool>? dor,
+    Value<bool>? aquecimento,
     Value<DateTime>? registradaEm,
     Value<int>? rowid,
   }) {
@@ -4153,6 +4205,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
       confirmado: confirmado ?? this.confirmado,
       editado: editado ?? this.editado,
       dor: dor ?? this.dor,
+      aquecimento: aquecimento ?? this.aquecimento,
       registradaEm: registradaEm ?? this.registradaEm,
       rowid: rowid ?? this.rowid,
     );
@@ -4209,6 +4262,9 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
     if (dor.present) {
       map['dor'] = Variable<bool>(dor.value);
     }
+    if (aquecimento.present) {
+      map['aquecimento'] = Variable<bool>(aquecimento.value);
+    }
     if (registradaEm.present) {
       map['registrada_em'] = Variable<DateTime>(registradaEm.value);
     }
@@ -4237,6 +4293,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
           ..write('confirmado: $confirmado, ')
           ..write('editado: $editado, ')
           ..write('dor: $dor, ')
+          ..write('aquecimento: $aquecimento, ')
           ..write('registradaEm: $registradaEm, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -4848,6 +4905,564 @@ class SubstituicoesCompanion extends UpdateCompanion<Substituicao> {
   }
 }
 
+class $AjustesExecucaoTable extends AjustesExecucao
+    with TableInfo<$AjustesExecucaoTable, AjusteExecucao> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $AjustesExecucaoTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _atualizadoEmMeta = const VerificationMeta(
+    'atualizadoEm',
+  );
+  @override
+  late final GeneratedColumn<DateTime> atualizadoEm = GeneratedColumn<DateTime>(
+    'atualizado_em',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: DateTime.now,
+  );
+  static const VerificationMeta _excluidoEmMeta = const VerificationMeta(
+    'excluidoEm',
+  );
+  @override
+  late final GeneratedColumn<DateTime> excluidoEm = GeneratedColumn<DateTime>(
+    'excluido_em',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sincronizadoEmMeta = const VerificationMeta(
+    'sincronizadoEm',
+  );
+  @override
+  late final GeneratedColumn<DateTime> sincronizadoEm =
+      GeneratedColumn<DateTime>(
+        'sincronizado_em',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _treinoIdMeta = const VerificationMeta(
+    'treinoId',
+  );
+  @override
+  late final GeneratedColumn<String> treinoId = GeneratedColumn<String>(
+    'treino_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES treinos (id)',
+    ),
+  );
+  static const VerificationMeta _itemPlanoIdMeta = const VerificationMeta(
+    'itemPlanoId',
+  );
+  @override
+  late final GeneratedColumn<String> itemPlanoId = GeneratedColumn<String>(
+    'item_plano_id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'REFERENCES itens_plano (id)',
+    ),
+  );
+  static const VerificationMeta _progressaoPrMeta = const VerificationMeta(
+    'progressaoPr',
+  );
+  @override
+  late final GeneratedColumn<bool> progressaoPr = GeneratedColumn<bool>(
+    'progressao_pr',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("progressao_pr" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  static const VerificationMeta _aquecimentoMeta = const VerificationMeta(
+    'aquecimento',
+  );
+  @override
+  late final GeneratedColumn<bool> aquecimento = GeneratedColumn<bool>(
+    'aquecimento',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("aquecimento" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    atualizadoEm,
+    excluidoEm,
+    sincronizadoEm,
+    id,
+    treinoId,
+    itemPlanoId,
+    progressaoPr,
+    aquecimento,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'ajustes_execucao';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<AjusteExecucao> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('atualizado_em')) {
+      context.handle(
+        _atualizadoEmMeta,
+        atualizadoEm.isAcceptableOrUnknown(
+          data['atualizado_em']!,
+          _atualizadoEmMeta,
+        ),
+      );
+    }
+    if (data.containsKey('excluido_em')) {
+      context.handle(
+        _excluidoEmMeta,
+        excluidoEm.isAcceptableOrUnknown(data['excluido_em']!, _excluidoEmMeta),
+      );
+    }
+    if (data.containsKey('sincronizado_em')) {
+      context.handle(
+        _sincronizadoEmMeta,
+        sincronizadoEm.isAcceptableOrUnknown(
+          data['sincronizado_em']!,
+          _sincronizadoEmMeta,
+        ),
+      );
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('treino_id')) {
+      context.handle(
+        _treinoIdMeta,
+        treinoId.isAcceptableOrUnknown(data['treino_id']!, _treinoIdMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_treinoIdMeta);
+    }
+    if (data.containsKey('item_plano_id')) {
+      context.handle(
+        _itemPlanoIdMeta,
+        itemPlanoId.isAcceptableOrUnknown(
+          data['item_plano_id']!,
+          _itemPlanoIdMeta,
+        ),
+      );
+    } else if (isInserting) {
+      context.missing(_itemPlanoIdMeta);
+    }
+    if (data.containsKey('progressao_pr')) {
+      context.handle(
+        _progressaoPrMeta,
+        progressaoPr.isAcceptableOrUnknown(
+          data['progressao_pr']!,
+          _progressaoPrMeta,
+        ),
+      );
+    }
+    if (data.containsKey('aquecimento')) {
+      context.handle(
+        _aquecimentoMeta,
+        aquecimento.isAcceptableOrUnknown(
+          data['aquecimento']!,
+          _aquecimentoMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  List<Set<GeneratedColumn>> get uniqueKeys => [
+    {treinoId, itemPlanoId},
+  ];
+  @override
+  AjusteExecucao map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return AjusteExecucao(
+      atualizadoEm: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}atualizado_em'],
+      )!,
+      excluidoEm: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}excluido_em'],
+      ),
+      sincronizadoEm: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}sincronizado_em'],
+      ),
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      treinoId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}treino_id'],
+      )!,
+      itemPlanoId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}item_plano_id'],
+      )!,
+      progressaoPr: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}progressao_pr'],
+      )!,
+      aquecimento: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}aquecimento'],
+      )!,
+    );
+  }
+
+  @override
+  $AjustesExecucaoTable createAlias(String alias) {
+    return $AjustesExecucaoTable(attachedDatabase, alias);
+  }
+}
+
+class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
+  final DateTime atualizadoEm;
+  final DateTime? excluidoEm;
+  final DateTime? sincronizadoEm;
+  final String id;
+  final String treinoId;
+  final String itemPlanoId;
+
+  /// Carga progressiva entre as séries até 120% ("Tentar bater o PR").
+  final bool progressaoPr;
+
+  /// Série extra de aquecimento pedida antes das séries do plano.
+  final bool aquecimento;
+  const AjusteExecucao({
+    required this.atualizadoEm,
+    this.excluidoEm,
+    this.sincronizadoEm,
+    required this.id,
+    required this.treinoId,
+    required this.itemPlanoId,
+    required this.progressaoPr,
+    required this.aquecimento,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['atualizado_em'] = Variable<DateTime>(atualizadoEm);
+    if (!nullToAbsent || excluidoEm != null) {
+      map['excluido_em'] = Variable<DateTime>(excluidoEm);
+    }
+    if (!nullToAbsent || sincronizadoEm != null) {
+      map['sincronizado_em'] = Variable<DateTime>(sincronizadoEm);
+    }
+    map['id'] = Variable<String>(id);
+    map['treino_id'] = Variable<String>(treinoId);
+    map['item_plano_id'] = Variable<String>(itemPlanoId);
+    map['progressao_pr'] = Variable<bool>(progressaoPr);
+    map['aquecimento'] = Variable<bool>(aquecimento);
+    return map;
+  }
+
+  AjustesExecucaoCompanion toCompanion(bool nullToAbsent) {
+    return AjustesExecucaoCompanion(
+      atualizadoEm: Value(atualizadoEm),
+      excluidoEm: excluidoEm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(excluidoEm),
+      sincronizadoEm: sincronizadoEm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sincronizadoEm),
+      id: Value(id),
+      treinoId: Value(treinoId),
+      itemPlanoId: Value(itemPlanoId),
+      progressaoPr: Value(progressaoPr),
+      aquecimento: Value(aquecimento),
+    );
+  }
+
+  factory AjusteExecucao.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return AjusteExecucao(
+      atualizadoEm: serializer.fromJson<DateTime>(json['atualizadoEm']),
+      excluidoEm: serializer.fromJson<DateTime?>(json['excluidoEm']),
+      sincronizadoEm: serializer.fromJson<DateTime?>(json['sincronizadoEm']),
+      id: serializer.fromJson<String>(json['id']),
+      treinoId: serializer.fromJson<String>(json['treinoId']),
+      itemPlanoId: serializer.fromJson<String>(json['itemPlanoId']),
+      progressaoPr: serializer.fromJson<bool>(json['progressaoPr']),
+      aquecimento: serializer.fromJson<bool>(json['aquecimento']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'atualizadoEm': serializer.toJson<DateTime>(atualizadoEm),
+      'excluidoEm': serializer.toJson<DateTime?>(excluidoEm),
+      'sincronizadoEm': serializer.toJson<DateTime?>(sincronizadoEm),
+      'id': serializer.toJson<String>(id),
+      'treinoId': serializer.toJson<String>(treinoId),
+      'itemPlanoId': serializer.toJson<String>(itemPlanoId),
+      'progressaoPr': serializer.toJson<bool>(progressaoPr),
+      'aquecimento': serializer.toJson<bool>(aquecimento),
+    };
+  }
+
+  AjusteExecucao copyWith({
+    DateTime? atualizadoEm,
+    Value<DateTime?> excluidoEm = const Value.absent(),
+    Value<DateTime?> sincronizadoEm = const Value.absent(),
+    String? id,
+    String? treinoId,
+    String? itemPlanoId,
+    bool? progressaoPr,
+    bool? aquecimento,
+  }) => AjusteExecucao(
+    atualizadoEm: atualizadoEm ?? this.atualizadoEm,
+    excluidoEm: excluidoEm.present ? excluidoEm.value : this.excluidoEm,
+    sincronizadoEm: sincronizadoEm.present
+        ? sincronizadoEm.value
+        : this.sincronizadoEm,
+    id: id ?? this.id,
+    treinoId: treinoId ?? this.treinoId,
+    itemPlanoId: itemPlanoId ?? this.itemPlanoId,
+    progressaoPr: progressaoPr ?? this.progressaoPr,
+    aquecimento: aquecimento ?? this.aquecimento,
+  );
+  AjusteExecucao copyWithCompanion(AjustesExecucaoCompanion data) {
+    return AjusteExecucao(
+      atualizadoEm: data.atualizadoEm.present
+          ? data.atualizadoEm.value
+          : this.atualizadoEm,
+      excluidoEm: data.excluidoEm.present
+          ? data.excluidoEm.value
+          : this.excluidoEm,
+      sincronizadoEm: data.sincronizadoEm.present
+          ? data.sincronizadoEm.value
+          : this.sincronizadoEm,
+      id: data.id.present ? data.id.value : this.id,
+      treinoId: data.treinoId.present ? data.treinoId.value : this.treinoId,
+      itemPlanoId: data.itemPlanoId.present
+          ? data.itemPlanoId.value
+          : this.itemPlanoId,
+      progressaoPr: data.progressaoPr.present
+          ? data.progressaoPr.value
+          : this.progressaoPr,
+      aquecimento: data.aquecimento.present
+          ? data.aquecimento.value
+          : this.aquecimento,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AjusteExecucao(')
+          ..write('atualizadoEm: $atualizadoEm, ')
+          ..write('excluidoEm: $excluidoEm, ')
+          ..write('sincronizadoEm: $sincronizadoEm, ')
+          ..write('id: $id, ')
+          ..write('treinoId: $treinoId, ')
+          ..write('itemPlanoId: $itemPlanoId, ')
+          ..write('progressaoPr: $progressaoPr, ')
+          ..write('aquecimento: $aquecimento')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    atualizadoEm,
+    excluidoEm,
+    sincronizadoEm,
+    id,
+    treinoId,
+    itemPlanoId,
+    progressaoPr,
+    aquecimento,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is AjusteExecucao &&
+          other.atualizadoEm == this.atualizadoEm &&
+          other.excluidoEm == this.excluidoEm &&
+          other.sincronizadoEm == this.sincronizadoEm &&
+          other.id == this.id &&
+          other.treinoId == this.treinoId &&
+          other.itemPlanoId == this.itemPlanoId &&
+          other.progressaoPr == this.progressaoPr &&
+          other.aquecimento == this.aquecimento);
+}
+
+class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
+  final Value<DateTime> atualizadoEm;
+  final Value<DateTime?> excluidoEm;
+  final Value<DateTime?> sincronizadoEm;
+  final Value<String> id;
+  final Value<String> treinoId;
+  final Value<String> itemPlanoId;
+  final Value<bool> progressaoPr;
+  final Value<bool> aquecimento;
+  final Value<int> rowid;
+  const AjustesExecucaoCompanion({
+    this.atualizadoEm = const Value.absent(),
+    this.excluidoEm = const Value.absent(),
+    this.sincronizadoEm = const Value.absent(),
+    this.id = const Value.absent(),
+    this.treinoId = const Value.absent(),
+    this.itemPlanoId = const Value.absent(),
+    this.progressaoPr = const Value.absent(),
+    this.aquecimento = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  AjustesExecucaoCompanion.insert({
+    this.atualizadoEm = const Value.absent(),
+    this.excluidoEm = const Value.absent(),
+    this.sincronizadoEm = const Value.absent(),
+    required String id,
+    required String treinoId,
+    required String itemPlanoId,
+    this.progressaoPr = const Value.absent(),
+    this.aquecimento = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id),
+       treinoId = Value(treinoId),
+       itemPlanoId = Value(itemPlanoId);
+  static Insertable<AjusteExecucao> custom({
+    Expression<DateTime>? atualizadoEm,
+    Expression<DateTime>? excluidoEm,
+    Expression<DateTime>? sincronizadoEm,
+    Expression<String>? id,
+    Expression<String>? treinoId,
+    Expression<String>? itemPlanoId,
+    Expression<bool>? progressaoPr,
+    Expression<bool>? aquecimento,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (atualizadoEm != null) 'atualizado_em': atualizadoEm,
+      if (excluidoEm != null) 'excluido_em': excluidoEm,
+      if (sincronizadoEm != null) 'sincronizado_em': sincronizadoEm,
+      if (id != null) 'id': id,
+      if (treinoId != null) 'treino_id': treinoId,
+      if (itemPlanoId != null) 'item_plano_id': itemPlanoId,
+      if (progressaoPr != null) 'progressao_pr': progressaoPr,
+      if (aquecimento != null) 'aquecimento': aquecimento,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  AjustesExecucaoCompanion copyWith({
+    Value<DateTime>? atualizadoEm,
+    Value<DateTime?>? excluidoEm,
+    Value<DateTime?>? sincronizadoEm,
+    Value<String>? id,
+    Value<String>? treinoId,
+    Value<String>? itemPlanoId,
+    Value<bool>? progressaoPr,
+    Value<bool>? aquecimento,
+    Value<int>? rowid,
+  }) {
+    return AjustesExecucaoCompanion(
+      atualizadoEm: atualizadoEm ?? this.atualizadoEm,
+      excluidoEm: excluidoEm ?? this.excluidoEm,
+      sincronizadoEm: sincronizadoEm ?? this.sincronizadoEm,
+      id: id ?? this.id,
+      treinoId: treinoId ?? this.treinoId,
+      itemPlanoId: itemPlanoId ?? this.itemPlanoId,
+      progressaoPr: progressaoPr ?? this.progressaoPr,
+      aquecimento: aquecimento ?? this.aquecimento,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (atualizadoEm.present) {
+      map['atualizado_em'] = Variable<DateTime>(atualizadoEm.value);
+    }
+    if (excluidoEm.present) {
+      map['excluido_em'] = Variable<DateTime>(excluidoEm.value);
+    }
+    if (sincronizadoEm.present) {
+      map['sincronizado_em'] = Variable<DateTime>(sincronizadoEm.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (treinoId.present) {
+      map['treino_id'] = Variable<String>(treinoId.value);
+    }
+    if (itemPlanoId.present) {
+      map['item_plano_id'] = Variable<String>(itemPlanoId.value);
+    }
+    if (progressaoPr.present) {
+      map['progressao_pr'] = Variable<bool>(progressaoPr.value);
+    }
+    if (aquecimento.present) {
+      map['aquecimento'] = Variable<bool>(aquecimento.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('AjustesExecucaoCompanion(')
+          ..write('atualizadoEm: $atualizadoEm, ')
+          ..write('excluidoEm: $excluidoEm, ')
+          ..write('sincronizadoEm: $sincronizadoEm, ')
+          ..write('id: $id, ')
+          ..write('treinoId: $treinoId, ')
+          ..write('itemPlanoId: $itemPlanoId, ')
+          ..write('progressaoPr: $progressaoPr, ')
+          ..write('aquecimento: $aquecimento, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -4858,6 +5473,9 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $TreinosTable treinos = $TreinosTable(this);
   late final $SeriesTable series = $SeriesTable(this);
   late final $SubstituicoesTable substituicoes = $SubstituicoesTable(this);
+  late final $AjustesExecucaoTable ajustesExecucao = $AjustesExecucaoTable(
+    this,
+  );
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -4870,6 +5488,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     treinos,
     series,
     substituicoes,
+    ajustesExecucao,
   ];
   @override
   DriftDatabaseOptions get options =>
@@ -6641,6 +7260,26 @@ final class $$ItensPlanoTableReferences
       manager.$state.copyWith(prefetchedData: cache),
     );
   }
+
+  static MultiTypedResultKey<$AjustesExecucaoTable, List<AjusteExecucao>>
+  _ajustesExecucaoRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.ajustesExecucao,
+    aliasName: 'itens_plano__id__ajustes_execucao__item_plano_id',
+  );
+
+  $$AjustesExecucaoTableProcessedTableManager get ajustesExecucaoRefs {
+    final manager = $$AjustesExecucaoTableTableManager(
+      $_db,
+      $_db.ajustesExecucao,
+    ).filter((f) => f.itemPlanoId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _ajustesExecucaoRefsTable($_db),
+    );
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
 }
 
 class $$ItensPlanoTableFilterComposer
@@ -6804,6 +7443,31 @@ class $$ItensPlanoTableFilterComposer
           }) => $$SubstituicoesTableFilterComposer(
             $db: $db,
             $table: $db.substituicoes,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> ajustesExecucaoRefs(
+    Expression<bool> Function($$AjustesExecucaoTableFilterComposer f) f,
+  ) {
+    final $$AjustesExecucaoTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ajustesExecucao,
+      getReferencedColumn: (t) => t.itemPlanoId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AjustesExecucaoTableFilterComposer(
+            $db: $db,
+            $table: $db.ajustesExecucao,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7088,6 +7752,31 @@ class $$ItensPlanoTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> ajustesExecucaoRefs<T extends Object>(
+    Expression<T> Function($$AjustesExecucaoTableAnnotationComposer a) f,
+  ) {
+    final $$AjustesExecucaoTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ajustesExecucao,
+      getReferencedColumn: (t) => t.itemPlanoId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AjustesExecucaoTableAnnotationComposer(
+            $db: $db,
+            $table: $db.ajustesExecucao,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$ItensPlanoTableTableManager
@@ -7108,6 +7797,7 @@ class $$ItensPlanoTableTableManager
             bool exercicioId,
             bool seriesRefs,
             bool substituicoesRefs,
+            bool ajustesExecucaoRefs,
           })
         > {
   $$ItensPlanoTableTableManager(_$AppDatabase db, $ItensPlanoTable table)
@@ -7207,12 +7897,14 @@ class $$ItensPlanoTableTableManager
                 exercicioId = false,
                 seriesRefs = false,
                 substituicoesRefs = false,
+                ajustesExecucaoRefs = false,
               }) {
                 return PrefetchHooks(
                   db: db,
                   explicitlyWatchedTables: [
                     if (seriesRefs) db.series,
                     if (substituicoesRefs) db.substituicoes,
+                    if (ajustesExecucaoRefs) db.ajustesExecucao,
                   ],
                   addJoins:
                       <
@@ -7299,6 +7991,27 @@ class $$ItensPlanoTableTableManager
                               ),
                           typedResults: items,
                         ),
+                      if (ajustesExecucaoRefs)
+                        await $_getPrefetchedData<
+                          ItemPlano,
+                          $ItensPlanoTable,
+                          AjusteExecucao
+                        >(
+                          currentTable: table,
+                          referencedTable: $$ItensPlanoTableReferences
+                              ._ajustesExecucaoRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$ItensPlanoTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).ajustesExecucaoRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.itemPlanoId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
                     ];
                   },
                 );
@@ -7324,6 +8037,7 @@ typedef $$ItensPlanoTableProcessedTableManager =
         bool exercicioId,
         bool seriesRefs,
         bool substituicoesRefs,
+        bool ajustesExecucaoRefs,
       })
     >;
 typedef $$TreinosTableCreateCompanionBuilder = TreinosCompanion Function({
@@ -7389,6 +8103,26 @@ final class $$TreinosTableReferences
     ).filter((f) => f.treinoId.id.sqlEquals($_itemColumn<String>('id')!));
 
     final cache = $_typedResult.readTableOrNull(_seriesRefsTable($_db));
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: cache),
+    );
+  }
+
+  static MultiTypedResultKey<$AjustesExecucaoTable, List<AjusteExecucao>>
+  _ajustesExecucaoRefsTable(_$AppDatabase db) => MultiTypedResultKey.fromTable(
+    db.ajustesExecucao,
+    aliasName: 'treinos__id__ajustes_execucao__treino_id',
+  );
+
+  $$AjustesExecucaoTableProcessedTableManager get ajustesExecucaoRefs {
+    final manager = $$AjustesExecucaoTableTableManager(
+      $_db,
+      $_db.ajustesExecucao,
+    ).filter((f) => f.treinoId.id.sqlEquals($_itemColumn<String>('id')!));
+
+    final cache = $_typedResult.readTableOrNull(
+      _ajustesExecucaoRefsTable($_db),
+    );
     return ProcessedTableManager(
       manager.$state.copyWith(prefetchedData: cache),
     );
@@ -7488,6 +8222,31 @@ class $$TreinosTableFilterComposer
           }) => $$SeriesTableFilterComposer(
             $db: $db,
             $table: $db.series,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
+
+  Expression<bool> ajustesExecucaoRefs(
+    Expression<bool> Function($$AjustesExecucaoTableFilterComposer f) f,
+  ) {
+    final $$AjustesExecucaoTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ajustesExecucao,
+      getReferencedColumn: (t) => t.treinoId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AjustesExecucaoTableFilterComposer(
+            $db: $db,
+            $table: $db.ajustesExecucao,
             $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
             joinBuilder: joinBuilder,
             $removeJoinBuilderFromRootComposer:
@@ -7669,6 +8428,31 @@ class $$TreinosTableAnnotationComposer
     );
     return f(composer);
   }
+
+  Expression<T> ajustesExecucaoRefs<T extends Object>(
+    Expression<T> Function($$AjustesExecucaoTableAnnotationComposer a) f,
+  ) {
+    final $$AjustesExecucaoTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.id,
+      referencedTable: $db.ajustesExecucao,
+      getReferencedColumn: (t) => t.treinoId,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$AjustesExecucaoTableAnnotationComposer(
+            $db: $db,
+            $table: $db.ajustesExecucao,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return f(composer);
+  }
 }
 
 class $$TreinosTableTableManager
@@ -7684,7 +8468,11 @@ class $$TreinosTableTableManager
           $$TreinosTableUpdateCompanionBuilder,
           (Treino, $$TreinosTableReferences),
           Treino,
-          PrefetchHooks Function({bool sessaoPlanoId, bool seriesRefs})
+          PrefetchHooks Function({
+            bool sessaoPlanoId,
+            bool seriesRefs,
+            bool ajustesExecucaoRefs,
+          })
         > {
   $$TreinosTableTableManager(_$AppDatabase db, $TreinosTable table)
     : super(
@@ -7757,57 +8545,92 @@ class $$TreinosTableTableManager
                 ),
               )
               .toList(),
-          prefetchHooksCallback: ({sessaoPlanoId = false, seriesRefs = false}) {
-            return PrefetchHooks(
-              db: db,
-              explicitlyWatchedTables: [if (seriesRefs) db.series],
-              addJoins:
-                  <
-                    T extends TableManagerState<
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic,
-                      dynamic
-                    >
-                  >(state) {
-                    if (sessaoPlanoId) {
-                      state = state.withJoin(
-                        currentTable: table,
-                        currentColumn: table.sessaoPlanoId,
-                        referencedTable: $$TreinosTableReferences
-                            ._sessaoPlanoIdTable(db),
-                        referencedColumn: $$TreinosTableReferences
-                            ._sessaoPlanoIdTable(db)
-                            .id,
-                      ) as T;
-                    }
+          prefetchHooksCallback:
+              ({
+                sessaoPlanoId = false,
+                seriesRefs = false,
+                ajustesExecucaoRefs = false,
+              }) {
+                return PrefetchHooks(
+                  db: db,
+                  explicitlyWatchedTables: [
+                    if (seriesRefs) db.series,
+                    if (ajustesExecucaoRefs) db.ajustesExecucao,
+                  ],
+                  addJoins:
+                      <
+                        T extends TableManagerState<
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic,
+                          dynamic
+                        >
+                      >(state) {
+                        if (sessaoPlanoId) {
+                          state = state.withJoin(
+                            currentTable: table,
+                            currentColumn: table.sessaoPlanoId,
+                            referencedTable: $$TreinosTableReferences
+                                ._sessaoPlanoIdTable(db),
+                            referencedColumn: $$TreinosTableReferences
+                                ._sessaoPlanoIdTable(db)
+                                .id,
+                          ) as T;
+                        }
 
-                    return state;
+                        return state;
+                      },
+                  getPrefetchedDataCallback: (items) async {
+                    return [
+                      if (seriesRefs)
+                        await $_getPrefetchedData<Treino, $TreinosTable, Serie>(
+                          currentTable: table,
+                          referencedTable: $$TreinosTableReferences
+                              ._seriesRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TreinosTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).seriesRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.treinoId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                      if (ajustesExecucaoRefs)
+                        await $_getPrefetchedData<
+                          Treino,
+                          $TreinosTable,
+                          AjusteExecucao
+                        >(
+                          currentTable: table,
+                          referencedTable: $$TreinosTableReferences
+                              ._ajustesExecucaoRefsTable(db),
+                          managerFromTypedResult: (p0) =>
+                              $$TreinosTableReferences(
+                                db,
+                                table,
+                                p0,
+                              ).ajustesExecucaoRefs,
+                          referencedItemsForCurrentItem:
+                              (item, referencedItems) => referencedItems.where(
+                                (e) => e.treinoId == item.id,
+                              ),
+                          typedResults: items,
+                        ),
+                    ];
                   },
-              getPrefetchedDataCallback: (items) async {
-                return [
-                  if (seriesRefs)
-                    await $_getPrefetchedData<Treino, $TreinosTable, Serie>(
-                      currentTable: table,
-                      referencedTable: $$TreinosTableReferences
-                          ._seriesRefsTable(db),
-                      managerFromTypedResult: (p0) =>
-                          $$TreinosTableReferences(db, table, p0).seriesRefs,
-                      referencedItemsForCurrentItem: (item, referencedItems) =>
-                          referencedItems.where((e) => e.treinoId == item.id),
-                      typedResults: items,
-                    ),
-                ];
+                );
               },
-            );
-          },
         ),
       );
 }
@@ -7824,7 +8647,11 @@ typedef $$TreinosTableProcessedTableManager =
       $$TreinosTableUpdateCompanionBuilder,
       (Treino, $$TreinosTableReferences),
       Treino,
-      PrefetchHooks Function({bool sessaoPlanoId, bool seriesRefs})
+      PrefetchHooks Function({
+        bool sessaoPlanoId,
+        bool seriesRefs,
+        bool ajustesExecucaoRefs,
+      })
     >;
 typedef $$SeriesTableCreateCompanionBuilder = SeriesCompanion Function({
   Value<DateTime> atualizadoEm,
@@ -7843,6 +8670,7 @@ typedef $$SeriesTableCreateCompanionBuilder = SeriesCompanion Function({
   Value<bool> confirmado,
   Value<bool> editado,
   Value<bool> dor,
+  Value<bool> aquecimento,
   required DateTime registradaEm,
   Value<int> rowid,
 });
@@ -7863,6 +8691,7 @@ typedef $$SeriesTableUpdateCompanionBuilder = SeriesCompanion Function({
   Value<bool> confirmado,
   Value<bool> editado,
   Value<bool> dor,
+  Value<bool> aquecimento,
   Value<DateTime> registradaEm,
   Value<int> rowid,
 });
@@ -7994,6 +8823,11 @@ class $$SeriesTableFilterComposer
 
   ColumnFilters<bool> get dor => $composableBuilder(
     column: $table.dor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get aquecimento => $composableBuilder(
+    column: $table.aquecimento,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8146,6 +8980,11 @@ class $$SeriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get aquecimento => $composableBuilder(
+    column: $table.aquecimento,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get registradaEm => $composableBuilder(
     column: $table.registradaEm,
     builder: (column) => ColumnOrderings(column),
@@ -8279,6 +9118,11 @@ class $$SeriesTableAnnotationComposer
   GeneratedColumn<bool> get dor =>
       $composableBuilder(column: $table.dor, builder: (column) => column);
 
+  GeneratedColumn<bool> get aquecimento => $composableBuilder(
+    column: $table.aquecimento,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get registradaEm => $composableBuilder(
     column: $table.registradaEm,
     builder: (column) => column,
@@ -8402,6 +9246,7 @@ class $$SeriesTableTableManager
                 Value<bool> confirmado = const Value.absent(),
                 Value<bool> editado = const Value.absent(),
                 Value<bool> dor = const Value.absent(),
+                Value<bool> aquecimento = const Value.absent(),
                 Value<DateTime> registradaEm = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SeriesCompanion(
@@ -8421,6 +9266,7 @@ class $$SeriesTableTableManager
                 confirmado: confirmado,
                 editado: editado,
                 dor: dor,
+                aquecimento: aquecimento,
                 registradaEm: registradaEm,
                 rowid: rowid,
               ),
@@ -8442,6 +9288,7 @@ class $$SeriesTableTableManager
                 Value<bool> confirmado = const Value.absent(),
                 Value<bool> editado = const Value.absent(),
                 Value<bool> dor = const Value.absent(),
+                Value<bool> aquecimento = const Value.absent(),
                 required DateTime registradaEm,
                 Value<int> rowid = const Value.absent(),
               }) => SeriesCompanion.insert(
@@ -8461,6 +9308,7 @@ class $$SeriesTableTableManager
                 confirmado: confirmado,
                 editado: editado,
                 dor: dor,
+                aquecimento: aquecimento,
                 registradaEm: registradaEm,
                 rowid: rowid,
               ),
@@ -9140,6 +9988,479 @@ typedef $$SubstituicoesTableProcessedTableManager =
         bool exercicioNovoId,
       })
     >;
+typedef $$AjustesExecucaoTableCreateCompanionBuilder =
+    AjustesExecucaoCompanion Function({
+      Value<DateTime> atualizadoEm,
+      Value<DateTime?> excluidoEm,
+      Value<DateTime?> sincronizadoEm,
+      required String id,
+      required String treinoId,
+      required String itemPlanoId,
+      Value<bool> progressaoPr,
+      Value<bool> aquecimento,
+      Value<int> rowid,
+    });
+typedef $$AjustesExecucaoTableUpdateCompanionBuilder =
+    AjustesExecucaoCompanion Function({
+      Value<DateTime> atualizadoEm,
+      Value<DateTime?> excluidoEm,
+      Value<DateTime?> sincronizadoEm,
+      Value<String> id,
+      Value<String> treinoId,
+      Value<String> itemPlanoId,
+      Value<bool> progressaoPr,
+      Value<bool> aquecimento,
+      Value<int> rowid,
+    });
+
+final class $$AjustesExecucaoTableReferences
+    extends
+        BaseReferences<_$AppDatabase, $AjustesExecucaoTable, AjusteExecucao> {
+  $$AjustesExecucaoTableReferences(
+    super.$_db,
+    super.$_table,
+    super.$_typedResult,
+  );
+
+  static $TreinosTable _treinoIdTable(_$AppDatabase db) =>
+      db.treinos.createAlias('ajustes_execucao__treino_id__treinos__id');
+
+  $$TreinosTableProcessedTableManager get treinoId {
+    final $_column = $_itemColumn<String>('treino_id')!;
+
+    final manager = $$TreinosTableTableManager(
+      $_db,
+      $_db.treinos,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_treinoIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+
+  static $ItensPlanoTable _itemPlanoIdTable(_$AppDatabase db) => db.itensPlano
+      .createAlias('ajustes_execucao__item_plano_id__itens_plano__id');
+
+  $$ItensPlanoTableProcessedTableManager get itemPlanoId {
+    final $_column = $_itemColumn<String>('item_plano_id')!;
+
+    final manager = $$ItensPlanoTableTableManager(
+      $_db,
+      $_db.itensPlano,
+    ).filter((f) => f.id.sqlEquals($_column));
+    final item = $_typedResult.readTableOrNull(_itemPlanoIdTable($_db));
+    if (item == null) return manager;
+    return ProcessedTableManager(
+      manager.$state.copyWith(prefetchedData: [item]),
+    );
+  }
+}
+
+class $$AjustesExecucaoTableFilterComposer
+    extends Composer<_$AppDatabase, $AjustesExecucaoTable> {
+  $$AjustesExecucaoTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<DateTime> get atualizadoEm => $composableBuilder(
+    column: $table.atualizadoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get excluidoEm => $composableBuilder(
+    column: $table.excluidoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get sincronizadoEm => $composableBuilder(
+    column: $table.sincronizadoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get progressaoPr => $composableBuilder(
+    column: $table.progressaoPr,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get aquecimento => $composableBuilder(
+    column: $table.aquecimento,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  $$TreinosTableFilterComposer get treinoId {
+    final $$TreinosTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.treinoId,
+      referencedTable: $db.treinos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TreinosTableFilterComposer(
+            $db: $db,
+            $table: $db.treinos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ItensPlanoTableFilterComposer get itemPlanoId {
+    final $$ItensPlanoTableFilterComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.itemPlanoId,
+      referencedTable: $db.itensPlano,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ItensPlanoTableFilterComposer(
+            $db: $db,
+            $table: $db.itensPlano,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AjustesExecucaoTableOrderingComposer
+    extends Composer<_$AppDatabase, $AjustesExecucaoTable> {
+  $$AjustesExecucaoTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<DateTime> get atualizadoEm => $composableBuilder(
+    column: $table.atualizadoEm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get excluidoEm => $composableBuilder(
+    column: $table.excluidoEm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get sincronizadoEm => $composableBuilder(
+    column: $table.sincronizadoEm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get progressaoPr => $composableBuilder(
+    column: $table.progressaoPr,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get aquecimento => $composableBuilder(
+    column: $table.aquecimento,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  $$TreinosTableOrderingComposer get treinoId {
+    final $$TreinosTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.treinoId,
+      referencedTable: $db.treinos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TreinosTableOrderingComposer(
+            $db: $db,
+            $table: $db.treinos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ItensPlanoTableOrderingComposer get itemPlanoId {
+    final $$ItensPlanoTableOrderingComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.itemPlanoId,
+      referencedTable: $db.itensPlano,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ItensPlanoTableOrderingComposer(
+            $db: $db,
+            $table: $db.itensPlano,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AjustesExecucaoTableAnnotationComposer
+    extends Composer<_$AppDatabase, $AjustesExecucaoTable> {
+  $$AjustesExecucaoTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<DateTime> get atualizadoEm => $composableBuilder(
+    column: $table.atualizadoEm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get excluidoEm => $composableBuilder(
+    column: $table.excluidoEm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get sincronizadoEm => $composableBuilder(
+    column: $table.sincronizadoEm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get progressaoPr => $composableBuilder(
+    column: $table.progressaoPr,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get aquecimento => $composableBuilder(
+    column: $table.aquecimento,
+    builder: (column) => column,
+  );
+
+  $$TreinosTableAnnotationComposer get treinoId {
+    final $$TreinosTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.treinoId,
+      referencedTable: $db.treinos,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$TreinosTableAnnotationComposer(
+            $db: $db,
+            $table: $db.treinos,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+
+  $$ItensPlanoTableAnnotationComposer get itemPlanoId {
+    final $$ItensPlanoTableAnnotationComposer composer = $composerBuilder(
+      composer: this,
+      getCurrentColumn: (t) => t.itemPlanoId,
+      referencedTable: $db.itensPlano,
+      getReferencedColumn: (t) => t.id,
+      builder:
+          (
+            joinBuilder, {
+            $addJoinBuilderToRootComposer,
+            $removeJoinBuilderFromRootComposer,
+          }) => $$ItensPlanoTableAnnotationComposer(
+            $db: $db,
+            $table: $db.itensPlano,
+            $addJoinBuilderToRootComposer: $addJoinBuilderToRootComposer,
+            joinBuilder: joinBuilder,
+            $removeJoinBuilderFromRootComposer:
+                $removeJoinBuilderFromRootComposer,
+          ),
+    );
+    return composer;
+  }
+}
+
+class $$AjustesExecucaoTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $AjustesExecucaoTable,
+          AjusteExecucao,
+          $$AjustesExecucaoTableFilterComposer,
+          $$AjustesExecucaoTableOrderingComposer,
+          $$AjustesExecucaoTableAnnotationComposer,
+          $$AjustesExecucaoTableCreateCompanionBuilder,
+          $$AjustesExecucaoTableUpdateCompanionBuilder,
+          (AjusteExecucao, $$AjustesExecucaoTableReferences),
+          AjusteExecucao,
+          PrefetchHooks Function({bool treinoId, bool itemPlanoId})
+        > {
+  $$AjustesExecucaoTableTableManager(
+    _$AppDatabase db,
+    $AjustesExecucaoTable table,
+  ) : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$AjustesExecucaoTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$AjustesExecucaoTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$AjustesExecucaoTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<DateTime> atualizadoEm = const Value.absent(),
+                Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<DateTime?> sincronizadoEm = const Value.absent(),
+                Value<String> id = const Value.absent(),
+                Value<String> treinoId = const Value.absent(),
+                Value<String> itemPlanoId = const Value.absent(),
+                Value<bool> progressaoPr = const Value.absent(),
+                Value<bool> aquecimento = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AjustesExecucaoCompanion(
+                atualizadoEm: atualizadoEm,
+                excluidoEm: excluidoEm,
+                sincronizadoEm: sincronizadoEm,
+                id: id,
+                treinoId: treinoId,
+                itemPlanoId: itemPlanoId,
+                progressaoPr: progressaoPr,
+                aquecimento: aquecimento,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                Value<DateTime> atualizadoEm = const Value.absent(),
+                Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<DateTime?> sincronizadoEm = const Value.absent(),
+                required String id,
+                required String treinoId,
+                required String itemPlanoId,
+                Value<bool> progressaoPr = const Value.absent(),
+                Value<bool> aquecimento = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => AjustesExecucaoCompanion.insert(
+                atualizadoEm: atualizadoEm,
+                excluidoEm: excluidoEm,
+                sincronizadoEm: sincronizadoEm,
+                id: id,
+                treinoId: treinoId,
+                itemPlanoId: itemPlanoId,
+                progressaoPr: progressaoPr,
+                aquecimento: aquecimento,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$AjustesExecucaoTable, AjusteExecucao>(table),
+                  $$AjustesExecucaoTableReferences(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: ({treinoId = false, itemPlanoId = false}) {
+            return PrefetchHooks(
+              db: db,
+              explicitlyWatchedTables: [],
+              addJoins:
+                  <
+                    T extends TableManagerState<
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic,
+                      dynamic
+                    >
+                  >(state) {
+                    if (treinoId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.treinoId,
+                        referencedTable: $$AjustesExecucaoTableReferences
+                            ._treinoIdTable(db),
+                        referencedColumn: $$AjustesExecucaoTableReferences
+                            ._treinoIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+                    if (itemPlanoId) {
+                      state = state.withJoin(
+                        currentTable: table,
+                        currentColumn: table.itemPlanoId,
+                        referencedTable: $$AjustesExecucaoTableReferences
+                            ._itemPlanoIdTable(db),
+                        referencedColumn: $$AjustesExecucaoTableReferences
+                            ._itemPlanoIdTable(db)
+                            .id,
+                      ) as T;
+                    }
+
+                    return state;
+                  },
+              getPrefetchedDataCallback: (items) async {
+                return [];
+              },
+            );
+          },
+        ),
+      );
+}
+
+typedef $$AjustesExecucaoTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $AjustesExecucaoTable,
+      AjusteExecucao,
+      $$AjustesExecucaoTableFilterComposer,
+      $$AjustesExecucaoTableOrderingComposer,
+      $$AjustesExecucaoTableAnnotationComposer,
+      $$AjustesExecucaoTableCreateCompanionBuilder,
+      $$AjustesExecucaoTableUpdateCompanionBuilder,
+      (AjusteExecucao, $$AjustesExecucaoTableReferences),
+      AjusteExecucao,
+      PrefetchHooks Function({bool treinoId, bool itemPlanoId})
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -9158,4 +10479,6 @@ class $AppDatabaseManager {
       $$SeriesTableTableManager(_db, _db.series);
   $$SubstituicoesTableTableManager get substituicoes =>
       $$SubstituicoesTableTableManager(_db, _db.substituicoes);
+  $$AjustesExecucaoTableTableManager get ajustesExecucao =>
+      $$AjustesExecucaoTableTableManager(_db, _db.ajustesExecucao);
 }
