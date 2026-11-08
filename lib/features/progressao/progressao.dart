@@ -29,6 +29,12 @@ List<double> percentuaisPr(int series) {
   };
 }
 
+/// Menor diferença entre dois pesos disponíveis perto de [kg].
+double incrementoCarga(double kg, String equipamento, double passo) {
+  if (equipamento == 'halteres') return kg <= 10 ? 1 : 2;
+  return passo > 0 ? passo : 2.5;
+}
+
 /// Arredonda a carga para um peso que existe na academia:
 ///
 /// - halteres: de 1 em 1 kg até 10 kg e de 2 em 2 kg acima disso;
@@ -42,12 +48,7 @@ double arredondarCarga(
   required double passo,
   bool paraBaixo = false,
 }) {
-  final double incremento;
-  if (equipamento == 'halteres') {
-    incremento = kg <= 10 ? 1 : 2;
-  } else {
-    incremento = passo > 0 ? passo : 2.5;
-  }
+  final incremento = incrementoCarga(kg, equipamento, passo);
   final passos = kg / incremento;
   final arredondado =
       (paraBaixo ? (passos + 1e-9).floor() : passos.round()) * incremento;
@@ -71,11 +72,19 @@ int repsEquivalentes({
 /// Carga e reps planejadas para uma série.
 typedef PlanoDaSerie = ({double? cargaKg, int reps, double? percentual});
 
+/// A mira acima do PR só vale até este múltiplo da carga planejada. Um PR
+/// antigo muito acima do plano atual (ex.: depois de uma pausa) fica só como
+/// referência, sem transformar a última série num salto perigoso.
+const limiteMiraPr = 1.35;
+
 /// Plano da série [numero] (de 1 a [series]) no modo PR.
 ///
 /// Se a carga da escada deixaria menos de [repsMinimasPr] reps, ela desce
 /// para o maior peso disponível que ainda dá essas reps (nunca abaixo da
 /// carga planejada). Ex.: agachamento 70 kg × 8 → 80 kg × 3 em vez de 85 × 1.
+///
+/// Com [prAtualKg] igual ou acima da última carga da escada, a última série
+/// mira o PR + 1 passo, com meta de pelo menos [repsMinimasPr] reps.
 PlanoDaSerie planoPr({
   required double cargaBase,
   required int repsBase,
@@ -83,6 +92,7 @@ PlanoDaSerie planoPr({
   required int numero,
   required String equipamento,
   required double passo,
+  double? prAtualKg,
 }) {
   final percentuais = percentuaisPr(series);
   final percentual = percentuais[(numero - 1).clamp(0, percentuais.length - 1)];
@@ -93,23 +103,124 @@ PlanoDaSerie planoPr({
   );
   int reps() =>
       repsEquivalentes(cargaBase: cargaBase, repsBase: repsBase, carga: carga);
-
   final minimo = math.min(repsMinimasPr, repsBase);
-  if (reps() >= minimo) {
-    return (cargaKg: carga, reps: reps(), percentual: percentual);
+
+  if (reps() < minimo) {
+    final umRm = cargaBase * (1 + repsBase / 30);
+    carga = math.max(
+      cargaBase,
+      arredondarCarga(
+        umRm / (1 + minimo / 30),
+        equipamento: equipamento,
+        passo: passo,
+        paraBaixo: true,
+      ),
+    );
   }
 
-  final umRm = cargaBase * (1 + repsBase / 30);
-  carga = math.max(
-    cargaBase,
-    arredondarCarga(
-      umRm / (1 + minimo / 30),
-      equipamento: equipamento,
-      passo: passo,
-      paraBaixo: true,
-    ),
+  final ultima = numero >= series && series > 1;
+  if (ultima && prAtualKg != null && prAtualKg >= carga) {
+    final mira = prAtualKg + incrementoCarga(prAtualKg, equipamento, passo);
+    if (mira <= cargaBase * limiteMiraPr) {
+      carga = mira;
+      return (
+        cargaKg: carga,
+        reps: math.max(minimo, reps()),
+        percentual: carga / cargaBase,
+      );
+    }
+  }
+
+  final ajustada =
+      carga !=
+      arredondarCarga(
+        cargaBase * percentual,
+        equipamento: equipamento,
+        passo: passo,
+      );
+  return (
+    cargaKg: carga,
+    reps: reps(),
+    percentual: ajustada ? carga / cargaBase : percentual,
   );
-  return (cargaKg: carga, reps: reps(), percentual: carga / cargaBase);
+}
+
+/// Os 5 níveis da pergunta "Como foi?", gravados como RIR (reps na reserva).
+const escalaDificuldade = <({String rotulo, int rir})>[
+  (rotulo: 'Mole', rir: 4),
+  (rotulo: 'Fácil', rir: 3),
+  (rotulo: 'Na medida', rir: 2),
+  (rotulo: 'Difícil', rir: 1),
+  (rotulo: 'No limite', rir: 0),
+];
+
+/// Rótulo do nível de dificuldade de um RIR gravado (4 ou mais = "Mole").
+String rotuloDificuldade(int rir) =>
+    escalaDificuldade.firstWhere((n) => n.rir == rir.clamp(0, 4)).rotulo;
+
+/// A próxima série deve vir com um passo de carga a menos? Sim quando as
+/// reps feitas ficaram 2 ou mais abaixo do mínimo da faixa, ou a dificuldade
+/// foi "No limite" (RIR 0). Não vale na última série, que não tem próxima.
+bool sugerirCargaMenor({
+  required int repsFeitas,
+  required int repsMin,
+  required int? rir,
+  required bool ultimaSerie,
+}) {
+  if (ultimaSerie) return false;
+  return repsFeitas <= repsMin - 2 || rir == 0;
+}
+
+/// Como calcular a carga das séries normais depois de um PR aceito.
+enum ModoNovoZero {
+  /// Converte o PR pelo 1RM estimado (Epley) para as reps do plano.
+  umRm('1rm'),
+
+  /// Usa o peso do PR direto como carga do plano.
+  direto('direto'),
+
+  /// Mostra as duas opções na hora.
+  perguntar('perguntar');
+
+  const ModoNovoZero(this.valor);
+
+  /// Como fica gravado no banco.
+  final String valor;
+
+  static ModoNovoZero de(String valor) =>
+      values.firstWhere((m) => m.valor == valor, orElse: () => umRm);
+}
+
+/// O PR foi batido: a última série passou da carga planejada e do recorde
+/// anterior, com pelo menos as reps da meta.
+bool bateuPr({
+  required double cargaFinal,
+  required int repsFeitas,
+  required int repsMeta,
+  required double cargaBase,
+  required double? prAnteriorKg,
+}) {
+  return cargaFinal > cargaBase &&
+      (prAnteriorKg == null || cargaFinal > prAnteriorKg) &&
+      repsFeitas >= repsMeta;
+}
+
+/// Carga para [repsPlano] reps com a força mostrada no PR ([carga] × [reps]),
+/// arredondada para baixo ao peso disponível. Ex.: 80 × 5 → 72,5 kg × 8.
+double novaBasePorUmRm({
+  required double carga,
+  required int reps,
+  required int repsPlano,
+  required String equipamento,
+  required double passo,
+}) {
+  final umRm = carga * (1 + reps / 30);
+  return arredondarCarga(
+    umRm / (1 + repsPlano / 30),
+    equipamento: equipamento,
+    passo: passo,
+    paraBaixo: true,
+  );
 }
 
 /// Plano da série extra de aquecimento: ~70% da carga, reps do mínimo da faixa.

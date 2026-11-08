@@ -29,6 +29,7 @@ void main() {
         'series',
         'substituicoes',
         'ajustes_execucao',
+        'preferencias',
       ]),
     );
   });
@@ -42,6 +43,7 @@ void main() {
       'series',
       'substituicoes',
       'ajustes_execucao',
+      'preferencias',
     ]) {
       final colunas = await db
           .customSelect('PRAGMA table_info($tabela)')

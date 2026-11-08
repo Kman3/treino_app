@@ -70,25 +70,33 @@ class StepperValor extends StatelessWidget {
                     borderRadius: BorderRadius.circular(Raios.botao),
                     child: Padding(
                       padding: const EdgeInsets.symmetric(vertical: Espacos.xs),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        crossAxisAlignment: CrossAxisAlignment.baseline,
-                        textBaseline: TextBaseline.alphabetic,
-                        children: [
-                          Flexible(
-                            child: FittedBox(
-                              child: Text(
+                      // Número e unidade encolhem juntos: um FittedBox só no
+                      // número perde a linha de base e joga o "KG" para baixo.
+                      child: Center(
+                        child: FittedBox(
+                          fit: BoxFit.scaleDown,
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            crossAxisAlignment: CrossAxisAlignment.baseline,
+                            textBaseline: TextBaseline.alphabetic,
+                            children: [
+                              Text(
                                 formatarKg(valor),
                                 style: Textos.numeroLista.copyWith(
                                   fontSize: 44,
                                   color: cor,
                                 ),
                               ),
-                            ),
+                              if (unidade.isNotEmpty) ...[
+                                const SizedBox(width: 2),
+                                Text(
+                                  unidade.toUpperCase(),
+                                  style: Textos.rotulo,
+                                ),
+                              ],
+                            ],
                           ),
-                          const SizedBox(width: 2),
-                          Text(unidade.toUpperCase(), style: Textos.rotulo),
-                        ],
+                        ),
                       ),
                     ),
                   ),
@@ -118,41 +126,82 @@ class StepperValor extends StatelessWidget {
   double _arredondar(double v) => double.parse(v.toStringAsFixed(2));
 
   Future<void> _digitar(BuildContext context) async {
-    final controle = TextEditingController(text: formatarKg(valor));
     final novo = await showDialog<double>(
       context: context,
-      builder: (context) {
-        void confirmar() => Navigator.pop(context, lerNumero(controle.text));
-        return AlertDialog(
-          backgroundColor: Cores.ferro800,
-          title: Text(rotulo, style: Textos.nome),
-          content: TextField(
-            controller: controle,
-            autofocus: true,
-            keyboardType: TextInputType.numberWithOptions(decimal: decimais),
-            inputFormatters: [
-              FilteringTextInputFormatter.allow(
-                RegExp(decimais ? r'[0-9.,]' : r'[0-9]'),
-              ),
-            ],
-            style: Textos.numeroLista,
-            decoration: InputDecoration(suffixText: unidade),
-            onSubmitted: (_) => confirmar(),
-          ),
-          actions: [
-            TextButton(
-              onPressed: () => Navigator.pop(context),
-              child: const Text('Cancelar'),
-            ),
-            TextButton(onPressed: confirmar, child: const Text('OK')),
-          ],
-        );
-      },
+      builder: (_) => _DialogoNumero(
+        titulo: rotulo,
+        inicial: formatarKg(valor),
+        unidade: unidade,
+        decimais: decimais,
+      ),
     );
-    controle.dispose();
     if (novo != null && novo >= minimo) {
       aoMudar(decimais ? _arredondar(novo) : novo.roundToDouble());
     }
+  }
+}
+
+/// Teclado numérico do [StepperValor].
+///
+/// O controlador do texto vive e morre com o diálogo. Descartá-lo assim que o
+/// diálogo devolve o valor derruba o app no celular: enquanto o diálogo fecha,
+/// o teclado do aparelho ainda atualiza o texto do campo.
+class _DialogoNumero extends StatefulWidget {
+  const _DialogoNumero({
+    required this.titulo,
+    required this.inicial,
+    required this.unidade,
+    required this.decimais,
+  });
+
+  final String titulo;
+  final String inicial;
+  final String unidade;
+  final bool decimais;
+
+  @override
+  State<_DialogoNumero> createState() => _DialogoNumeroState();
+}
+
+class _DialogoNumeroState extends State<_DialogoNumero> {
+  late final _controle = TextEditingController(text: widget.inicial);
+
+  @override
+  void dispose() {
+    _controle.dispose();
+    super.dispose();
+  }
+
+  void _confirmar() => Navigator.pop(context, lerNumero(_controle.text));
+
+  @override
+  Widget build(BuildContext context) {
+    return AlertDialog(
+      backgroundColor: Cores.ferro800,
+      title: Text(widget.titulo, style: Textos.nome),
+      content: TextField(
+        controller: _controle,
+        autofocus: true,
+        keyboardType: TextInputType.numberWithOptions(
+          decimal: widget.decimais,
+        ),
+        inputFormatters: [
+          FilteringTextInputFormatter.allow(
+            RegExp(widget.decimais ? r'[0-9.,]' : r'[0-9]'),
+          ),
+        ],
+        style: Textos.numeroLista,
+        decoration: InputDecoration(suffixText: widget.unidade),
+        onSubmitted: (_) => _confirmar(),
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text('Cancelar'),
+        ),
+        TextButton(onPressed: _confirmar, child: const Text('OK')),
+      ],
+    );
   }
 }
 

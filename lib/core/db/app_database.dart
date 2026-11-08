@@ -19,6 +19,7 @@ part 'app_database.g.dart';
     Series,
     Substituicoes,
     AjustesExecucao,
+    Preferencias,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -28,8 +29,10 @@ class AppDatabase extends _$AppDatabase {
 
   /// 1: tabelas da seção 5 do PRD.
   /// 2: `ajustes_execucao` e `series.aquecimento` (modo PR e aquecimento).
+  /// 3: descanso em `treinos`, `series.manter_carga`,
+  ///    `ajustes_execucao.novo_zero_respondido` e `preferencias`.
   @override
-  int get schemaVersion => 2;
+  int get schemaVersion => 3;
 
   /// Emite ao ouvir e de novo sempre que alguma das [tabelas] muda.
   ///
@@ -52,6 +55,16 @@ class AppDatabase extends _$AppDatabase {
       from1To2: (m, esquema) async {
         await m.createTable(esquema.ajustesExecucao);
         await m.addColumn(esquema.series, esquema.series.aquecimento);
+      },
+      from2To3: (m, esquema) async {
+        await m.addColumn(esquema.treinos, esquema.treinos.descansoTerminaEm);
+        await m.addColumn(esquema.treinos, esquema.treinos.descansoSerieId);
+        await m.addColumn(esquema.series, esquema.series.manterCarga);
+        await m.addColumn(
+          esquema.ajustesExecucao,
+          esquema.ajustesExecucao.novoZeroRespondido,
+        );
+        await m.createTable(esquema.preferencias);
       },
     ),
     beforeOpen: (details) async {

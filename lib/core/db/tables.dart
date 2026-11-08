@@ -126,6 +126,13 @@ class Treinos extends Table with ColunasSync {
       .check(modo.isIn(ModoTreino.todos))
       .withDefault(const Constant(ModoTreino.normal))();
 
+  /// Fim do descanso em andamento, como horário (não contagem), para o timer
+  /// sobreviver a segundo plano e a reinícios. Nulo = sem descanso. Versão 3.
+  DateTimeColumn get descansoTerminaEm => dateTime().nullable()();
+
+  /// Série registrada que abriu o descanso (a da pergunta "Como foi?").
+  TextColumn get descansoSerieId => text().nullable()();
+
   @override
   Set<Column> get primaryKey => {id};
 }
@@ -150,6 +157,10 @@ class Series extends Table with ColunasSync {
   /// Série extra de aquecimento (número 0). Fica fora do volume e da
   /// progressão. Versão 2 do esquema.
   BoolColumn get aquecimento => boolean().withDefault(const Constant(false))();
+
+  /// A pessoa recusou a sugestão de carga menor que esta série gerou para a
+  /// próxima ("Manter carga"). Versão 3.
+  BoolColumn get manterCarga => boolean().withDefault(const Constant(false))();
   DateTimeColumn get registradaEm => dateTime()();
 
   @override
@@ -170,6 +181,11 @@ class AjustesExecucao extends Table with ColunasSync {
   /// Série extra de aquecimento pedida antes das séries do plano.
   BoolColumn get aquecimento => boolean().withDefault(const Constant(false))();
 
+  /// A pergunta "usar o PR como novo ponto de partida?" já foi respondida
+  /// neste treino. Versão 3.
+  BoolColumn get novoZeroRespondido =>
+      boolean().withDefault(const Constant(false))();
+
   @override
   Set<Column> get primaryKey => {id};
 
@@ -177,6 +193,29 @@ class AjustesExecucao extends Table with ColunasSync {
   List<Set<Column>> get uniqueKeys => [
     {treinoId, itemPlanoId},
   ];
+}
+
+/// Perfil → Preferências de treino. Uma linha só ([Preferencias.idLocal]).
+/// Versão 3.
+@DataClassName('Preferencia')
+class Preferencias extends Table with ColunasSync {
+  static const idLocal = 'local';
+
+  TextColumn get id => text()();
+
+  /// Sugerir um passo de carga a menos na próxima série quando faltaram reps
+  /// ou a série foi "No limite".
+  BoolColumn get sugestaoCargaMenor =>
+      boolean().withDefault(const Constant(true))();
+
+  /// Como calcular o novo ponto de partida depois de um PR aceito:
+  /// '1rm', 'direto' ou 'perguntar'.
+  TextColumn get modoNovoZero => text()
+      .check(modoNovoZero.isIn(const ['1rm', 'direto', 'perguntar']))
+      .withDefault(const Constant('1rm'))();
+
+  @override
+  Set<Column> get primaryKey => {id};
 }
 
 /// Origem: botão "Ocupado".

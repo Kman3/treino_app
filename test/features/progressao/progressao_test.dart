@@ -119,6 +119,122 @@ void main() {
     );
   });
 
+  group('sugerirCargaMenor', () {
+    test('2 ou mais reps abaixo do mínimo', () {
+      expect(
+        sugerirCargaMenor(
+          repsFeitas: 4,
+          repsMin: 6,
+          rir: null,
+          ultimaSerie: false,
+        ),
+        isTrue,
+      );
+      expect(
+        sugerirCargaMenor(
+          repsFeitas: 5,
+          repsMin: 6,
+          rir: 2,
+          ultimaSerie: false,
+        ),
+        isFalse,
+      );
+    });
+
+    test('"No limite" (RIR 0), mas não na última série', () {
+      expect(
+        sugerirCargaMenor(
+          repsFeitas: 10,
+          repsMin: 6,
+          rir: 0,
+          ultimaSerie: false,
+        ),
+        isTrue,
+      );
+      expect(
+        sugerirCargaMenor(repsFeitas: 2, repsMin: 6, rir: 0, ultimaSerie: true),
+        isFalse,
+      );
+    });
+  });
+
+  test('escala de dificuldade grava RIR 4 → 0', () {
+    expect(escalaDificuldade.map((n) => n.rir), [4, 3, 2, 1, 0]);
+    expect(rotuloDificuldade(2), 'Na medida');
+    expect(rotuloDificuldade(6), 'Mole');
+  });
+
+  group('PR', () {
+    test('bater = acima do plano e do PR anterior, com as reps da meta', () {
+      bool bateu(double carga, int reps, double? pr) => bateuPr(
+        cargaFinal: carga,
+        repsFeitas: reps,
+        repsMeta: 3,
+        cargaBase: 60,
+        prAnteriorKg: pr,
+      );
+      expect(bateu(72.5, 3, null), isTrue);
+      expect(bateu(72.5, 3, 75), isFalse);
+      expect(bateu(77.5, 3, 75), isTrue);
+      expect(bateu(77.5, 2, 75), isFalse);
+      expect(bateu(60, 10, null), isFalse);
+    });
+
+    test('novo zero pelo 1RM: 80 × 5 vira 72,5 × 8 na barra', () {
+      expect(
+        novaBasePorUmRm(
+          carga: 80,
+          reps: 5,
+          repsPlano: 8,
+          equipamento: 'barra',
+          passo: 2.5,
+        ),
+        72.5,
+      );
+    });
+
+    test('80 × 3 equivale a ~70 × 8: a base não sobe', () {
+      // 80 × 3 → 1RM 88 kg; para 8 reps, 69,5 kg → 67,5 kg disponível.
+      expect(
+        novaBasePorUmRm(
+          carga: 80,
+          reps: 3,
+          repsPlano: 8,
+          equipamento: 'barra',
+          passo: 2.5,
+        ),
+        lessThanOrEqualTo(70),
+      );
+    });
+
+    test('a escada mira o PR + 1 passo na última série', () {
+      final ultima = planoPr(
+        cargaBase: 60,
+        repsBase: 10,
+        series: 4,
+        numero: 4,
+        equipamento: 'barra',
+        passo: 2.5,
+        prAtualKg: 75,
+      );
+      expect(ultima.cargaKg, 77.5);
+      expect(ultima.reps, 3);
+    });
+
+    test('PR abaixo da escada não muda nada', () {
+      final ultima = planoPr(
+        cargaBase: 60,
+        repsBase: 10,
+        series: 4,
+        numero: 4,
+        equipamento: 'barra',
+        passo: 2.5,
+        prAtualKg: 65,
+      );
+      expect(ultima.cargaKg, 72.5);
+    });
+  });
+
   test('aquecimento: ~70% da carga, reps do mínimo da faixa', () {
     final plano = planoAquecimento(
       cargaBase: 60,

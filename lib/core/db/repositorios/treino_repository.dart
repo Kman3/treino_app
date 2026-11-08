@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 import 'package:uuid/uuid.dart';
 
@@ -6,7 +7,7 @@ import '../app_database.dart';
 /// Execuções reais de treino e as séries registradas nelas.
 class TreinoRepository {
   TreinoRepository(this._db, {DateTime Function()? agora})
-    : _agora = agora ?? DateTime.now;
+    : _agora = agora ?? clock.now;
 
   final AppDatabase _db;
   final DateTime Function() _agora;
@@ -110,6 +111,95 @@ class TreinoRepository {
     );
   }
 
+  /// Grava a resposta da pergunta "Como foi?" (RIR de 0 a 4).
+  Future<void> responderDificuldade(String serieId, int rir) =>
+      _atualizarSerie(serieId, SeriesCompanion(rir: Value(rir)));
+
+  /// "✓ Sim, igual": a série foi feita como registrada.
+  Future<void> confirmarSerie(String serieId) =>
+      _atualizarSerie(serieId, const SeriesCompanion(confirmado: Value(true)));
+
+  /// Recusa (ou volta a aceitar) a carga menor que esta série sugeriu para a
+  /// próxima.
+  Future<void> definirManterCarga(String serieId, {required bool manter}) =>
+      _atualizarSerie(serieId, SeriesCompanion(manterCarga: Value(manter)));
+
+  Future<void> _atualizarSerie(String serieId, SeriesCompanion valores) async {
+    await (_db.update(_db.series)..where((s) => s.id.equals(serieId))).write(
+      valores.copyWith(atualizadoEm: Value(_agora())),
+    );
+  }
+
+  /// Abre o descanso: grava quando ele termina e qual série o abriu.
+  Future<void> definirDescanso(
+    String treinoId, {
+    required DateTime? terminaEm,
+    String? serieId,
+  }) async {
+    await (_db.update(_db.treinos)..where((t) => t.id.equals(treinoId))).write(
+      TreinosCompanion(
+        descansoTerminaEm: Value(terminaEm),
+        descansoSerieId: terminaEm == null
+            ? const Value(null)
+            : (serieId == null ? const Value.absent() : Value(serieId)),
+        atualizadoEm: Value(_agora()),
+      ),
+    );
+  }
+
+  /// Maior carga já registrada em cada exercício antes deste treino (séries
+  /// do plano, sem aquecimento): o PR atual.
+  Future<Map<String, double>> recordes(
+    Iterable<String> exercicioIds, {
+    required String excetoTreinoId,
+  }) async {
+    final ids = exercicioIds.toSet();
+    if (ids.isEmpty) return {};
+    final maior = _db.series.cargaKg.max();
+    final consulta = _db.selectOnly(_db.series)
+      ..addColumns([_db.series.exercicioId, maior])
+      ..where(
+        _db.series.exercicioId.isIn(ids) &
+            _db.series.treinoId.equals(excetoTreinoId).not() &
+            _db.series.aquecimento.equals(false) &
+            _db.series.excluidoEm.isNull() &
+            _db.series.cargaKg.isNotNull(),
+      )
+      ..groupBy([_db.series.exercicioId]);
+    return {
+      for (final linha in await consulta.get())
+        linha.read(_db.series.exercicioId)!: linha.read(maior)!,
+    };
+  }
+
+  /// Dias de treino em que o exercício foi feito com [cargaKg] ou mais, do
+  /// mais antigo para o mais recente (para "você já fez 80 kg 2 vezes").
+  Future<List<DateTime>> datasComCarga(
+    String exercicioId,
+    double cargaKg,
+  ) async {
+    final consulta =
+        _db.select(_db.series).join([
+            innerJoin(
+              _db.treinos,
+              _db.treinos.id.equalsExp(_db.series.treinoId),
+            ),
+          ])
+          ..where(
+            _db.series.exercicioId.equals(exercicioId) &
+                _db.series.cargaKg.isBiggerOrEqualValue(cargaKg - 1e-6) &
+                _db.series.aquecimento.equals(false) &
+                _db.series.excluidoEm.isNull(),
+          )
+          ..orderBy([OrderingTerm.asc(_db.treinos.iniciadoEm)]);
+    final porTreino = <String, DateTime>{};
+    for (final linha in await consulta.get()) {
+      final treino = linha.readTable(_db.treinos);
+      porTreino.putIfAbsent(treino.id, () => treino.iniciadoEm);
+    }
+    return porTreino.values.toList();
+  }
+
   /// Exclusão lógica, para o sync levar a exclusão ao Supabase.
   Future<void> excluirSerie(String serieId) async {
     final agora = _agora();
@@ -140,6 +230,7 @@ class TreinoRepository {
     required String itemPlanoId,
     bool? progressaoPr,
     bool? aquecimento,
+    bool? novoZeroRespondido,
   }) async {
     final agora = _agora();
     final existente =
@@ -160,6 +251,7 @@ class TreinoRepository {
               itemPlanoId: itemPlanoId,
               progressaoPr: Value(progressaoPr ?? false),
               aquecimento: Value(aquecimento ?? false),
+              novoZeroRespondido: Value(novoZeroRespondido ?? false),
               atualizadoEm: Value(agora),
             ),
           );
@@ -169,12 +261,9 @@ class TreinoRepository {
       _db.ajustesExecucao,
     )..where((a) => a.id.equals(existente.id))).write(
       AjustesExecucaoCompanion(
-        progressaoPr: progressaoPr == null
-            ? const Value.absent()
-            : Value(progressaoPr),
-        aquecimento: aquecimento == null
-            ? const Value.absent()
-            : Value(aquecimento),
+        progressaoPr: Value.absentIfNull(progressaoPr),
+        aquecimento: Value.absentIfNull(aquecimento),
+        novoZeroRespondido: Value.absentIfNull(novoZeroRespondido),
         atualizadoEm: Value(agora),
       ),
     );

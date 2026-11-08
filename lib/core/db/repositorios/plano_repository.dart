@@ -1,3 +1,4 @@
+import 'package:clock/clock.dart';
 import 'package:drift/drift.dart';
 
 import '../app_database.dart';
@@ -53,7 +54,7 @@ class TreinoDoDia {
 
 class PlanoRepository {
   PlanoRepository(this._db, {DateTime Function()? agora})
-    : _agora = agora ?? DateTime.now;
+    : _agora = agora ?? clock.now;
 
   final AppDatabase _db;
   final DateTime Function() _agora;
@@ -147,6 +148,19 @@ class PlanoRepository {
       sessao: (await sessaoComItens(sessaoDoDia.id))!,
       semana: _semanaDoCiclo(plano),
       emAndamento: emAndamento,
+    );
+  }
+
+  /// Novo ponto de partida do exercício (PR aceito como "novo zero"): as
+  /// séries normais passam a usar esta carga daqui em diante.
+  Future<void> atualizarCargaPlano(String itemPlanoId, double cargaKg) async {
+    await (_db.update(
+      _db.itensPlano,
+    )..where((i) => i.id.equals(itemPlanoId))).write(
+      ItensPlanoCompanion(
+        cargaPlanKg: Value(cargaKg),
+        atualizadoEm: Value(_agora()),
+      ),
     );
   }
 

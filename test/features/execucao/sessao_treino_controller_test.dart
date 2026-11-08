@@ -1,25 +1,50 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:treino_app/core/db/app_database.dart';
 import 'package:treino_app/core/db/repositorios/plano_repository.dart';
+import 'package:treino_app/core/db/repositorios/preferencias_repository.dart';
 import 'package:treino_app/core/db/repositorios/treino_repository.dart';
+import 'package:treino_app/core/notificacoes/aviso_descanso.dart';
 import 'package:treino_app/features/execucao/estado_execucao.dart';
 import 'package:treino_app/features/execucao/sessao_treino_controller.dart';
 
 import '../../helpers.dart';
 
+/// Guarda o último aviso agendado, no lugar da notificação de verdade.
+class AvisoFalso implements AvisoDescanso {
+  DateTime? agendadoPara;
+  int permissoes = 0;
+
+  @override
+  Future<void> pedirPermissao() async => permissoes++;
+
+  @override
+  Future<void> agendar(DateTime quando, {required String texto}) async =>
+      agendadoPara = quando;
+
+  @override
+  Future<void> cancelar() async => agendadoPara = null;
+}
+
 void main() {
   late AppDatabase db;
   late DateTime agora;
   late PlanoRepository planos;
+  late PreferenciasRepository preferencias;
+  late AvisoFalso aviso;
   late SessaoTreinoController controller;
 
   SessaoTreinoController novoController() {
     DateTime relogio() => agora;
     planos = PlanoRepository(db, agora: relogio);
+    preferencias = PreferenciasRepository(db, agora: relogio);
+    aviso = AvisoFalso();
     return SessaoTreinoController(
       db,
       planos,
       TreinoRepository(db, agora: relogio),
+      preferencias: preferencias,
+      aviso: aviso,
+      agora: relogio,
     );
   }
 

@@ -2742,6 +2742,29 @@ class $TreinosTable extends Treinos with TableInfo<$TreinosTable, Treino> {
     requiredDuringInsert: false,
     defaultValue: const Constant(ModoTreino.normal),
   );
+  static const VerificationMeta _descansoTerminaEmMeta = const VerificationMeta(
+    'descansoTerminaEm',
+  );
+  @override
+  late final GeneratedColumn<DateTime> descansoTerminaEm =
+      GeneratedColumn<DateTime>(
+        'descanso_termina_em',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _descansoSerieIdMeta = const VerificationMeta(
+    'descansoSerieId',
+  );
+  @override
+  late final GeneratedColumn<String> descansoSerieId = GeneratedColumn<String>(
+    'descanso_serie_id',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   List<GeneratedColumn> get $columns => [
     atualizadoEm,
@@ -2754,6 +2777,8 @@ class $TreinosTable extends Treinos with TableInfo<$TreinosTable, Treino> {
     finalizadoEm,
     status,
     modo,
+    descansoTerminaEm,
+    descansoSerieId,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -2842,6 +2867,24 @@ class $TreinosTable extends Treinos with TableInfo<$TreinosTable, Treino> {
         modo.isAcceptableOrUnknown(data['modo']!, _modoMeta),
       );
     }
+    if (data.containsKey('descanso_termina_em')) {
+      context.handle(
+        _descansoTerminaEmMeta,
+        descansoTerminaEm.isAcceptableOrUnknown(
+          data['descanso_termina_em']!,
+          _descansoTerminaEmMeta,
+        ),
+      );
+    }
+    if (data.containsKey('descanso_serie_id')) {
+      context.handle(
+        _descansoSerieIdMeta,
+        descansoSerieId.isAcceptableOrUnknown(
+          data['descanso_serie_id']!,
+          _descansoSerieIdMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -2891,6 +2934,14 @@ class $TreinosTable extends Treinos with TableInfo<$TreinosTable, Treino> {
         DriftSqlType.string,
         data['${effectivePrefix}modo'],
       )!,
+      descansoTerminaEm: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}descanso_termina_em'],
+      ),
+      descansoSerieId: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}descanso_serie_id'],
+      ),
     );
   }
 
@@ -2911,6 +2962,13 @@ class Treino extends DataClass implements Insertable<Treino> {
   final DateTime? finalizadoEm;
   final String status;
   final String modo;
+
+  /// Fim do descanso em andamento, como horário (não contagem), para o timer
+  /// sobreviver a segundo plano e a reinícios. Nulo = sem descanso. Versão 3.
+  final DateTime? descansoTerminaEm;
+
+  /// Série registrada que abriu o descanso (a da pergunta "Como foi?").
+  final String? descansoSerieId;
   const Treino({
     required this.atualizadoEm,
     this.excluidoEm,
@@ -2922,6 +2980,8 @@ class Treino extends DataClass implements Insertable<Treino> {
     this.finalizadoEm,
     required this.status,
     required this.modo,
+    this.descansoTerminaEm,
+    this.descansoSerieId,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -2944,6 +3004,12 @@ class Treino extends DataClass implements Insertable<Treino> {
     }
     map['status'] = Variable<String>(status);
     map['modo'] = Variable<String>(modo);
+    if (!nullToAbsent || descansoTerminaEm != null) {
+      map['descanso_termina_em'] = Variable<DateTime>(descansoTerminaEm);
+    }
+    if (!nullToAbsent || descansoSerieId != null) {
+      map['descanso_serie_id'] = Variable<String>(descansoSerieId);
+    }
     return map;
   }
 
@@ -2967,6 +3033,12 @@ class Treino extends DataClass implements Insertable<Treino> {
           : Value(finalizadoEm),
       status: Value(status),
       modo: Value(modo),
+      descansoTerminaEm: descansoTerminaEm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(descansoTerminaEm),
+      descansoSerieId: descansoSerieId == null && nullToAbsent
+          ? const Value.absent()
+          : Value(descansoSerieId),
     );
   }
 
@@ -2986,6 +3058,10 @@ class Treino extends DataClass implements Insertable<Treino> {
       finalizadoEm: serializer.fromJson<DateTime?>(json['finalizadoEm']),
       status: serializer.fromJson<String>(json['status']),
       modo: serializer.fromJson<String>(json['modo']),
+      descansoTerminaEm: serializer.fromJson<DateTime?>(
+        json['descansoTerminaEm'],
+      ),
+      descansoSerieId: serializer.fromJson<String?>(json['descansoSerieId']),
     );
   }
   @override
@@ -3002,6 +3078,8 @@ class Treino extends DataClass implements Insertable<Treino> {
       'finalizadoEm': serializer.toJson<DateTime?>(finalizadoEm),
       'status': serializer.toJson<String>(status),
       'modo': serializer.toJson<String>(modo),
+      'descansoTerminaEm': serializer.toJson<DateTime?>(descansoTerminaEm),
+      'descansoSerieId': serializer.toJson<String?>(descansoSerieId),
     };
   }
 
@@ -3016,6 +3094,8 @@ class Treino extends DataClass implements Insertable<Treino> {
     Value<DateTime?> finalizadoEm = const Value.absent(),
     String? status,
     String? modo,
+    Value<DateTime?> descansoTerminaEm = const Value.absent(),
+    Value<String?> descansoSerieId = const Value.absent(),
   }) => Treino(
     atualizadoEm: atualizadoEm ?? this.atualizadoEm,
     excluidoEm: excluidoEm.present ? excluidoEm.value : this.excluidoEm,
@@ -3029,6 +3109,12 @@ class Treino extends DataClass implements Insertable<Treino> {
     finalizadoEm: finalizadoEm.present ? finalizadoEm.value : this.finalizadoEm,
     status: status ?? this.status,
     modo: modo ?? this.modo,
+    descansoTerminaEm: descansoTerminaEm.present
+        ? descansoTerminaEm.value
+        : this.descansoTerminaEm,
+    descansoSerieId: descansoSerieId.present
+        ? descansoSerieId.value
+        : this.descansoSerieId,
   );
   Treino copyWithCompanion(TreinosCompanion data) {
     return Treino(
@@ -3054,6 +3140,12 @@ class Treino extends DataClass implements Insertable<Treino> {
           : this.finalizadoEm,
       status: data.status.present ? data.status.value : this.status,
       modo: data.modo.present ? data.modo.value : this.modo,
+      descansoTerminaEm: data.descansoTerminaEm.present
+          ? data.descansoTerminaEm.value
+          : this.descansoTerminaEm,
+      descansoSerieId: data.descansoSerieId.present
+          ? data.descansoSerieId.value
+          : this.descansoSerieId,
     );
   }
 
@@ -3069,7 +3161,9 @@ class Treino extends DataClass implements Insertable<Treino> {
           ..write('iniciadoEm: $iniciadoEm, ')
           ..write('finalizadoEm: $finalizadoEm, ')
           ..write('status: $status, ')
-          ..write('modo: $modo')
+          ..write('modo: $modo, ')
+          ..write('descansoTerminaEm: $descansoTerminaEm, ')
+          ..write('descansoSerieId: $descansoSerieId')
           ..write(')'))
         .toString();
   }
@@ -3086,6 +3180,8 @@ class Treino extends DataClass implements Insertable<Treino> {
     finalizadoEm,
     status,
     modo,
+    descansoTerminaEm,
+    descansoSerieId,
   );
   @override
   bool operator ==(Object other) =>
@@ -3100,7 +3196,9 @@ class Treino extends DataClass implements Insertable<Treino> {
           other.iniciadoEm == this.iniciadoEm &&
           other.finalizadoEm == this.finalizadoEm &&
           other.status == this.status &&
-          other.modo == this.modo);
+          other.modo == this.modo &&
+          other.descansoTerminaEm == this.descansoTerminaEm &&
+          other.descansoSerieId == this.descansoSerieId);
 }
 
 class TreinosCompanion extends UpdateCompanion<Treino> {
@@ -3114,6 +3212,8 @@ class TreinosCompanion extends UpdateCompanion<Treino> {
   final Value<DateTime?> finalizadoEm;
   final Value<String> status;
   final Value<String> modo;
+  final Value<DateTime?> descansoTerminaEm;
+  final Value<String?> descansoSerieId;
   final Value<int> rowid;
   const TreinosCompanion({
     this.atualizadoEm = const Value.absent(),
@@ -3126,6 +3226,8 @@ class TreinosCompanion extends UpdateCompanion<Treino> {
     this.finalizadoEm = const Value.absent(),
     this.status = const Value.absent(),
     this.modo = const Value.absent(),
+    this.descansoTerminaEm = const Value.absent(),
+    this.descansoSerieId = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   TreinosCompanion.insert({
@@ -3139,6 +3241,8 @@ class TreinosCompanion extends UpdateCompanion<Treino> {
     this.finalizadoEm = const Value.absent(),
     this.status = const Value.absent(),
     this.modo = const Value.absent(),
+    this.descansoTerminaEm = const Value.absent(),
+    this.descansoSerieId = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        sessaoPlanoId = Value(sessaoPlanoId),
@@ -3154,6 +3258,8 @@ class TreinosCompanion extends UpdateCompanion<Treino> {
     Expression<DateTime>? finalizadoEm,
     Expression<String>? status,
     Expression<String>? modo,
+    Expression<DateTime>? descansoTerminaEm,
+    Expression<String>? descansoSerieId,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -3167,6 +3273,8 @@ class TreinosCompanion extends UpdateCompanion<Treino> {
       if (finalizadoEm != null) 'finalizado_em': finalizadoEm,
       if (status != null) 'status': status,
       if (modo != null) 'modo': modo,
+      if (descansoTerminaEm != null) 'descanso_termina_em': descansoTerminaEm,
+      if (descansoSerieId != null) 'descanso_serie_id': descansoSerieId,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -3182,6 +3290,8 @@ class TreinosCompanion extends UpdateCompanion<Treino> {
     Value<DateTime?>? finalizadoEm,
     Value<String>? status,
     Value<String>? modo,
+    Value<DateTime?>? descansoTerminaEm,
+    Value<String?>? descansoSerieId,
     Value<int>? rowid,
   }) {
     return TreinosCompanion(
@@ -3195,6 +3305,8 @@ class TreinosCompanion extends UpdateCompanion<Treino> {
       finalizadoEm: finalizadoEm ?? this.finalizadoEm,
       status: status ?? this.status,
       modo: modo ?? this.modo,
+      descansoTerminaEm: descansoTerminaEm ?? this.descansoTerminaEm,
+      descansoSerieId: descansoSerieId ?? this.descansoSerieId,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -3232,6 +3344,12 @@ class TreinosCompanion extends UpdateCompanion<Treino> {
     if (modo.present) {
       map['modo'] = Variable<String>(modo.value);
     }
+    if (descansoTerminaEm.present) {
+      map['descanso_termina_em'] = Variable<DateTime>(descansoTerminaEm.value);
+    }
+    if (descansoSerieId.present) {
+      map['descanso_serie_id'] = Variable<String>(descansoSerieId.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -3251,6 +3369,8 @@ class TreinosCompanion extends UpdateCompanion<Treino> {
           ..write('finalizadoEm: $finalizadoEm, ')
           ..write('status: $status, ')
           ..write('modo: $modo, ')
+          ..write('descansoTerminaEm: $descansoTerminaEm, ')
+          ..write('descansoSerieId: $descansoSerieId, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -3467,6 +3587,21 @@ class $SeriesTable extends Series with TableInfo<$SeriesTable, Serie> {
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _manterCargaMeta = const VerificationMeta(
+    'manterCarga',
+  );
+  @override
+  late final GeneratedColumn<bool> manterCarga = GeneratedColumn<bool>(
+    'manter_carga',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("manter_carga" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   static const VerificationMeta _registradaEmMeta = const VerificationMeta(
     'registradaEm',
   );
@@ -3497,6 +3632,7 @@ class $SeriesTable extends Series with TableInfo<$SeriesTable, Serie> {
     editado,
     dor,
     aquecimento,
+    manterCarga,
     registradaEm,
   ];
   @override
@@ -3636,6 +3772,15 @@ class $SeriesTable extends Series with TableInfo<$SeriesTable, Serie> {
         ),
       );
     }
+    if (data.containsKey('manter_carga')) {
+      context.handle(
+        _manterCargaMeta,
+        manterCarga.isAcceptableOrUnknown(
+          data['manter_carga']!,
+          _manterCargaMeta,
+        ),
+      );
+    }
     if (data.containsKey('registrada_em')) {
       context.handle(
         _registradaEmMeta,
@@ -3724,6 +3869,10 @@ class $SeriesTable extends Series with TableInfo<$SeriesTable, Serie> {
         DriftSqlType.bool,
         data['${effectivePrefix}aquecimento'],
       )!,
+      manterCarga: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}manter_carga'],
+      )!,
       registradaEm: attachedDatabase.typeMapping.read(
         DriftSqlType.dateTime,
         data['${effectivePrefix}registrada_em'],
@@ -3758,6 +3907,10 @@ class Serie extends DataClass implements Insertable<Serie> {
   /// Série extra de aquecimento (número 0). Fica fora do volume e da
   /// progressão. Versão 2 do esquema.
   final bool aquecimento;
+
+  /// A pessoa recusou a sugestão de carga menor que esta série gerou para a
+  /// próxima ("Manter carga"). Versão 3.
+  final bool manterCarga;
   final DateTime registradaEm;
   const Serie({
     required this.atualizadoEm,
@@ -3777,6 +3930,7 @@ class Serie extends DataClass implements Insertable<Serie> {
     required this.editado,
     required this.dor,
     required this.aquecimento,
+    required this.manterCarga,
     required this.registradaEm,
   });
   @override
@@ -3815,6 +3969,7 @@ class Serie extends DataClass implements Insertable<Serie> {
     map['editado'] = Variable<bool>(editado);
     map['dor'] = Variable<bool>(dor);
     map['aquecimento'] = Variable<bool>(aquecimento);
+    map['manter_carga'] = Variable<bool>(manterCarga);
     map['registrada_em'] = Variable<DateTime>(registradaEm);
     return map;
   }
@@ -3850,6 +4005,7 @@ class Serie extends DataClass implements Insertable<Serie> {
       editado: Value(editado),
       dor: Value(dor),
       aquecimento: Value(aquecimento),
+      manterCarga: Value(manterCarga),
       registradaEm: Value(registradaEm),
     );
   }
@@ -3877,6 +4033,7 @@ class Serie extends DataClass implements Insertable<Serie> {
       editado: serializer.fromJson<bool>(json['editado']),
       dor: serializer.fromJson<bool>(json['dor']),
       aquecimento: serializer.fromJson<bool>(json['aquecimento']),
+      manterCarga: serializer.fromJson<bool>(json['manterCarga']),
       registradaEm: serializer.fromJson<DateTime>(json['registradaEm']),
     );
   }
@@ -3901,6 +4058,7 @@ class Serie extends DataClass implements Insertable<Serie> {
       'editado': serializer.toJson<bool>(editado),
       'dor': serializer.toJson<bool>(dor),
       'aquecimento': serializer.toJson<bool>(aquecimento),
+      'manterCarga': serializer.toJson<bool>(manterCarga),
       'registradaEm': serializer.toJson<DateTime>(registradaEm),
     };
   }
@@ -3923,6 +4081,7 @@ class Serie extends DataClass implements Insertable<Serie> {
     bool? editado,
     bool? dor,
     bool? aquecimento,
+    bool? manterCarga,
     DateTime? registradaEm,
   }) => Serie(
     atualizadoEm: atualizadoEm ?? this.atualizadoEm,
@@ -3944,6 +4103,7 @@ class Serie extends DataClass implements Insertable<Serie> {
     editado: editado ?? this.editado,
     dor: dor ?? this.dor,
     aquecimento: aquecimento ?? this.aquecimento,
+    manterCarga: manterCarga ?? this.manterCarga,
     registradaEm: registradaEm ?? this.registradaEm,
   );
   Serie copyWithCompanion(SeriesCompanion data) {
@@ -3981,6 +4141,9 @@ class Serie extends DataClass implements Insertable<Serie> {
       aquecimento: data.aquecimento.present
           ? data.aquecimento.value
           : this.aquecimento,
+      manterCarga: data.manterCarga.present
+          ? data.manterCarga.value
+          : this.manterCarga,
       registradaEm: data.registradaEm.present
           ? data.registradaEm.value
           : this.registradaEm,
@@ -4007,6 +4170,7 @@ class Serie extends DataClass implements Insertable<Serie> {
           ..write('editado: $editado, ')
           ..write('dor: $dor, ')
           ..write('aquecimento: $aquecimento, ')
+          ..write('manterCarga: $manterCarga, ')
           ..write('registradaEm: $registradaEm')
           ..write(')'))
         .toString();
@@ -4031,6 +4195,7 @@ class Serie extends DataClass implements Insertable<Serie> {
     editado,
     dor,
     aquecimento,
+    manterCarga,
     registradaEm,
   );
   @override
@@ -4054,6 +4219,7 @@ class Serie extends DataClass implements Insertable<Serie> {
           other.editado == this.editado &&
           other.dor == this.dor &&
           other.aquecimento == this.aquecimento &&
+          other.manterCarga == this.manterCarga &&
           other.registradaEm == this.registradaEm);
 }
 
@@ -4075,6 +4241,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
   final Value<bool> editado;
   final Value<bool> dor;
   final Value<bool> aquecimento;
+  final Value<bool> manterCarga;
   final Value<DateTime> registradaEm;
   final Value<int> rowid;
   const SeriesCompanion({
@@ -4095,6 +4262,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
     this.editado = const Value.absent(),
     this.dor = const Value.absent(),
     this.aquecimento = const Value.absent(),
+    this.manterCarga = const Value.absent(),
     this.registradaEm = const Value.absent(),
     this.rowid = const Value.absent(),
   });
@@ -4116,6 +4284,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
     this.editado = const Value.absent(),
     this.dor = const Value.absent(),
     this.aquecimento = const Value.absent(),
+    this.manterCarga = const Value.absent(),
     required DateTime registradaEm,
     this.rowid = const Value.absent(),
   }) : id = Value(id),
@@ -4141,6 +4310,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
     Expression<bool>? editado,
     Expression<bool>? dor,
     Expression<bool>? aquecimento,
+    Expression<bool>? manterCarga,
     Expression<DateTime>? registradaEm,
     Expression<int>? rowid,
   }) {
@@ -4162,6 +4332,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
       if (editado != null) 'editado': editado,
       if (dor != null) 'dor': dor,
       if (aquecimento != null) 'aquecimento': aquecimento,
+      if (manterCarga != null) 'manter_carga': manterCarga,
       if (registradaEm != null) 'registrada_em': registradaEm,
       if (rowid != null) 'rowid': rowid,
     });
@@ -4185,6 +4356,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
     Value<bool>? editado,
     Value<bool>? dor,
     Value<bool>? aquecimento,
+    Value<bool>? manterCarga,
     Value<DateTime>? registradaEm,
     Value<int>? rowid,
   }) {
@@ -4206,6 +4378,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
       editado: editado ?? this.editado,
       dor: dor ?? this.dor,
       aquecimento: aquecimento ?? this.aquecimento,
+      manterCarga: manterCarga ?? this.manterCarga,
       registradaEm: registradaEm ?? this.registradaEm,
       rowid: rowid ?? this.rowid,
     );
@@ -4265,6 +4438,9 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
     if (aquecimento.present) {
       map['aquecimento'] = Variable<bool>(aquecimento.value);
     }
+    if (manterCarga.present) {
+      map['manter_carga'] = Variable<bool>(manterCarga.value);
+    }
     if (registradaEm.present) {
       map['registrada_em'] = Variable<DateTime>(registradaEm.value);
     }
@@ -4294,6 +4470,7 @@ class SeriesCompanion extends UpdateCompanion<Serie> {
           ..write('editado: $editado, ')
           ..write('dor: $dor, ')
           ..write('aquecimento: $aquecimento, ')
+          ..write('manterCarga: $manterCarga, ')
           ..write('registradaEm: $registradaEm, ')
           ..write('rowid: $rowid')
           ..write(')'))
@@ -5013,6 +5190,20 @@ class $AjustesExecucaoTable extends AjustesExecucao
     ),
     defaultValue: const Constant(false),
   );
+  static const VerificationMeta _novoZeroRespondidoMeta =
+      const VerificationMeta('novoZeroRespondido');
+  @override
+  late final GeneratedColumn<bool> novoZeroRespondido = GeneratedColumn<bool>(
+    'novo_zero_respondido',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("novo_zero_respondido" IN (0, 1))',
+    ),
+    defaultValue: const Constant(false),
+  );
   @override
   List<GeneratedColumn> get $columns => [
     atualizadoEm,
@@ -5023,6 +5214,7 @@ class $AjustesExecucaoTable extends AjustesExecucao
     itemPlanoId,
     progressaoPr,
     aquecimento,
+    novoZeroRespondido,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -5102,6 +5294,15 @@ class $AjustesExecucaoTable extends AjustesExecucao
         ),
       );
     }
+    if (data.containsKey('novo_zero_respondido')) {
+      context.handle(
+        _novoZeroRespondidoMeta,
+        novoZeroRespondido.isAcceptableOrUnknown(
+          data['novo_zero_respondido']!,
+          _novoZeroRespondidoMeta,
+        ),
+      );
+    }
     return context;
   }
 
@@ -5147,6 +5348,10 @@ class $AjustesExecucaoTable extends AjustesExecucao
         DriftSqlType.bool,
         data['${effectivePrefix}aquecimento'],
       )!,
+      novoZeroRespondido: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}novo_zero_respondido'],
+      )!,
     );
   }
 
@@ -5169,6 +5374,10 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
 
   /// Série extra de aquecimento pedida antes das séries do plano.
   final bool aquecimento;
+
+  /// A pergunta "usar o PR como novo ponto de partida?" já foi respondida
+  /// neste treino. Versão 3.
+  final bool novoZeroRespondido;
   const AjusteExecucao({
     required this.atualizadoEm,
     this.excluidoEm,
@@ -5178,6 +5387,7 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
     required this.itemPlanoId,
     required this.progressaoPr,
     required this.aquecimento,
+    required this.novoZeroRespondido,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -5194,6 +5404,7 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
     map['item_plano_id'] = Variable<String>(itemPlanoId);
     map['progressao_pr'] = Variable<bool>(progressaoPr);
     map['aquecimento'] = Variable<bool>(aquecimento);
+    map['novo_zero_respondido'] = Variable<bool>(novoZeroRespondido);
     return map;
   }
 
@@ -5211,6 +5422,7 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
       itemPlanoId: Value(itemPlanoId),
       progressaoPr: Value(progressaoPr),
       aquecimento: Value(aquecimento),
+      novoZeroRespondido: Value(novoZeroRespondido),
     );
   }
 
@@ -5228,6 +5440,7 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
       itemPlanoId: serializer.fromJson<String>(json['itemPlanoId']),
       progressaoPr: serializer.fromJson<bool>(json['progressaoPr']),
       aquecimento: serializer.fromJson<bool>(json['aquecimento']),
+      novoZeroRespondido: serializer.fromJson<bool>(json['novoZeroRespondido']),
     );
   }
   @override
@@ -5242,6 +5455,7 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
       'itemPlanoId': serializer.toJson<String>(itemPlanoId),
       'progressaoPr': serializer.toJson<bool>(progressaoPr),
       'aquecimento': serializer.toJson<bool>(aquecimento),
+      'novoZeroRespondido': serializer.toJson<bool>(novoZeroRespondido),
     };
   }
 
@@ -5254,6 +5468,7 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
     String? itemPlanoId,
     bool? progressaoPr,
     bool? aquecimento,
+    bool? novoZeroRespondido,
   }) => AjusteExecucao(
     atualizadoEm: atualizadoEm ?? this.atualizadoEm,
     excluidoEm: excluidoEm.present ? excluidoEm.value : this.excluidoEm,
@@ -5265,6 +5480,7 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
     itemPlanoId: itemPlanoId ?? this.itemPlanoId,
     progressaoPr: progressaoPr ?? this.progressaoPr,
     aquecimento: aquecimento ?? this.aquecimento,
+    novoZeroRespondido: novoZeroRespondido ?? this.novoZeroRespondido,
   );
   AjusteExecucao copyWithCompanion(AjustesExecucaoCompanion data) {
     return AjusteExecucao(
@@ -5288,6 +5504,9 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
       aquecimento: data.aquecimento.present
           ? data.aquecimento.value
           : this.aquecimento,
+      novoZeroRespondido: data.novoZeroRespondido.present
+          ? data.novoZeroRespondido.value
+          : this.novoZeroRespondido,
     );
   }
 
@@ -5301,7 +5520,8 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
           ..write('treinoId: $treinoId, ')
           ..write('itemPlanoId: $itemPlanoId, ')
           ..write('progressaoPr: $progressaoPr, ')
-          ..write('aquecimento: $aquecimento')
+          ..write('aquecimento: $aquecimento, ')
+          ..write('novoZeroRespondido: $novoZeroRespondido')
           ..write(')'))
         .toString();
   }
@@ -5316,6 +5536,7 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
     itemPlanoId,
     progressaoPr,
     aquecimento,
+    novoZeroRespondido,
   );
   @override
   bool operator ==(Object other) =>
@@ -5328,7 +5549,8 @@ class AjusteExecucao extends DataClass implements Insertable<AjusteExecucao> {
           other.treinoId == this.treinoId &&
           other.itemPlanoId == this.itemPlanoId &&
           other.progressaoPr == this.progressaoPr &&
-          other.aquecimento == this.aquecimento);
+          other.aquecimento == this.aquecimento &&
+          other.novoZeroRespondido == this.novoZeroRespondido);
 }
 
 class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
@@ -5340,6 +5562,7 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
   final Value<String> itemPlanoId;
   final Value<bool> progressaoPr;
   final Value<bool> aquecimento;
+  final Value<bool> novoZeroRespondido;
   final Value<int> rowid;
   const AjustesExecucaoCompanion({
     this.atualizadoEm = const Value.absent(),
@@ -5350,6 +5573,7 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
     this.itemPlanoId = const Value.absent(),
     this.progressaoPr = const Value.absent(),
     this.aquecimento = const Value.absent(),
+    this.novoZeroRespondido = const Value.absent(),
     this.rowid = const Value.absent(),
   });
   AjustesExecucaoCompanion.insert({
@@ -5361,6 +5585,7 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
     required String itemPlanoId,
     this.progressaoPr = const Value.absent(),
     this.aquecimento = const Value.absent(),
+    this.novoZeroRespondido = const Value.absent(),
     this.rowid = const Value.absent(),
   }) : id = Value(id),
        treinoId = Value(treinoId),
@@ -5374,6 +5599,7 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
     Expression<String>? itemPlanoId,
     Expression<bool>? progressaoPr,
     Expression<bool>? aquecimento,
+    Expression<bool>? novoZeroRespondido,
     Expression<int>? rowid,
   }) {
     return RawValuesInsertable({
@@ -5385,6 +5611,8 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
       if (itemPlanoId != null) 'item_plano_id': itemPlanoId,
       if (progressaoPr != null) 'progressao_pr': progressaoPr,
       if (aquecimento != null) 'aquecimento': aquecimento,
+      if (novoZeroRespondido != null)
+        'novo_zero_respondido': novoZeroRespondido,
       if (rowid != null) 'rowid': rowid,
     });
   }
@@ -5398,6 +5626,7 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
     Value<String>? itemPlanoId,
     Value<bool>? progressaoPr,
     Value<bool>? aquecimento,
+    Value<bool>? novoZeroRespondido,
     Value<int>? rowid,
   }) {
     return AjustesExecucaoCompanion(
@@ -5409,6 +5638,7 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
       itemPlanoId: itemPlanoId ?? this.itemPlanoId,
       progressaoPr: progressaoPr ?? this.progressaoPr,
       aquecimento: aquecimento ?? this.aquecimento,
+      novoZeroRespondido: novoZeroRespondido ?? this.novoZeroRespondido,
       rowid: rowid ?? this.rowid,
     );
   }
@@ -5440,6 +5670,9 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
     if (aquecimento.present) {
       map['aquecimento'] = Variable<bool>(aquecimento.value);
     }
+    if (novoZeroRespondido.present) {
+      map['novo_zero_respondido'] = Variable<bool>(novoZeroRespondido.value);
+    }
     if (rowid.present) {
       map['rowid'] = Variable<int>(rowid.value);
     }
@@ -5457,6 +5690,454 @@ class AjustesExecucaoCompanion extends UpdateCompanion<AjusteExecucao> {
           ..write('itemPlanoId: $itemPlanoId, ')
           ..write('progressaoPr: $progressaoPr, ')
           ..write('aquecimento: $aquecimento, ')
+          ..write('novoZeroRespondido: $novoZeroRespondido, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
+class $PreferenciasTable extends Preferencias
+    with TableInfo<$PreferenciasTable, Preferencia> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $PreferenciasTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _atualizadoEmMeta = const VerificationMeta(
+    'atualizadoEm',
+  );
+  @override
+  late final GeneratedColumn<DateTime> atualizadoEm = GeneratedColumn<DateTime>(
+    'atualizado_em',
+    aliasedName,
+    false,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+    clientDefault: DateTime.now,
+  );
+  static const VerificationMeta _excluidoEmMeta = const VerificationMeta(
+    'excluidoEm',
+  );
+  @override
+  late final GeneratedColumn<DateTime> excluidoEm = GeneratedColumn<DateTime>(
+    'excluido_em',
+    aliasedName,
+    true,
+    type: DriftSqlType.dateTime,
+    requiredDuringInsert: false,
+  );
+  static const VerificationMeta _sincronizadoEmMeta = const VerificationMeta(
+    'sincronizadoEm',
+  );
+  @override
+  late final GeneratedColumn<DateTime> sincronizadoEm =
+      GeneratedColumn<DateTime>(
+        'sincronizado_em',
+        aliasedName,
+        true,
+        type: DriftSqlType.dateTime,
+        requiredDuringInsert: false,
+      );
+  static const VerificationMeta _idMeta = const VerificationMeta('id');
+  @override
+  late final GeneratedColumn<String> id = GeneratedColumn<String>(
+    'id',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _sugestaoCargaMenorMeta =
+      const VerificationMeta('sugestaoCargaMenor');
+  @override
+  late final GeneratedColumn<bool> sugestaoCargaMenor = GeneratedColumn<bool>(
+    'sugestao_carga_menor',
+    aliasedName,
+    false,
+    type: DriftSqlType.bool,
+    requiredDuringInsert: false,
+    defaultConstraints: GeneratedColumn.constraintIsAlways(
+      'CHECK ("sugestao_carga_menor" IN (0, 1))',
+    ),
+    defaultValue: const Constant(true),
+  );
+  static const VerificationMeta _modoNovoZeroMeta = const VerificationMeta(
+    'modoNovoZero',
+  );
+  @override
+  late final GeneratedColumn<String> modoNovoZero = GeneratedColumn<String>(
+    'modo_novo_zero',
+    aliasedName,
+    false,
+    check: () => modoNovoZero.isIn(const ['1rm', 'direto', 'perguntar']),
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+    defaultValue: const Constant('1rm'),
+  );
+  @override
+  List<GeneratedColumn> get $columns => [
+    atualizadoEm,
+    excluidoEm,
+    sincronizadoEm,
+    id,
+    sugestaoCargaMenor,
+    modoNovoZero,
+  ];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'preferencias';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<Preferencia> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('atualizado_em')) {
+      context.handle(
+        _atualizadoEmMeta,
+        atualizadoEm.isAcceptableOrUnknown(
+          data['atualizado_em']!,
+          _atualizadoEmMeta,
+        ),
+      );
+    }
+    if (data.containsKey('excluido_em')) {
+      context.handle(
+        _excluidoEmMeta,
+        excluidoEm.isAcceptableOrUnknown(data['excluido_em']!, _excluidoEmMeta),
+      );
+    }
+    if (data.containsKey('sincronizado_em')) {
+      context.handle(
+        _sincronizadoEmMeta,
+        sincronizadoEm.isAcceptableOrUnknown(
+          data['sincronizado_em']!,
+          _sincronizadoEmMeta,
+        ),
+      );
+    }
+    if (data.containsKey('id')) {
+      context.handle(_idMeta, id.isAcceptableOrUnknown(data['id']!, _idMeta));
+    } else if (isInserting) {
+      context.missing(_idMeta);
+    }
+    if (data.containsKey('sugestao_carga_menor')) {
+      context.handle(
+        _sugestaoCargaMenorMeta,
+        sugestaoCargaMenor.isAcceptableOrUnknown(
+          data['sugestao_carga_menor']!,
+          _sugestaoCargaMenorMeta,
+        ),
+      );
+    }
+    if (data.containsKey('modo_novo_zero')) {
+      context.handle(
+        _modoNovoZeroMeta,
+        modoNovoZero.isAcceptableOrUnknown(
+          data['modo_novo_zero']!,
+          _modoNovoZeroMeta,
+        ),
+      );
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {id};
+  @override
+  Preferencia map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return Preferencia(
+      atualizadoEm: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}atualizado_em'],
+      )!,
+      excluidoEm: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}excluido_em'],
+      ),
+      sincronizadoEm: attachedDatabase.typeMapping.read(
+        DriftSqlType.dateTime,
+        data['${effectivePrefix}sincronizado_em'],
+      ),
+      id: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}id'],
+      )!,
+      sugestaoCargaMenor: attachedDatabase.typeMapping.read(
+        DriftSqlType.bool,
+        data['${effectivePrefix}sugestao_carga_menor'],
+      )!,
+      modoNovoZero: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}modo_novo_zero'],
+      )!,
+    );
+  }
+
+  @override
+  $PreferenciasTable createAlias(String alias) {
+    return $PreferenciasTable(attachedDatabase, alias);
+  }
+}
+
+class Preferencia extends DataClass implements Insertable<Preferencia> {
+  final DateTime atualizadoEm;
+  final DateTime? excluidoEm;
+  final DateTime? sincronizadoEm;
+  final String id;
+
+  /// Sugerir um passo de carga a menos na próxima série quando faltaram reps
+  /// ou a série foi "No limite".
+  final bool sugestaoCargaMenor;
+
+  /// Como calcular o novo ponto de partida depois de um PR aceito:
+  /// '1rm', 'direto' ou 'perguntar'.
+  final String modoNovoZero;
+  const Preferencia({
+    required this.atualizadoEm,
+    this.excluidoEm,
+    this.sincronizadoEm,
+    required this.id,
+    required this.sugestaoCargaMenor,
+    required this.modoNovoZero,
+  });
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['atualizado_em'] = Variable<DateTime>(atualizadoEm);
+    if (!nullToAbsent || excluidoEm != null) {
+      map['excluido_em'] = Variable<DateTime>(excluidoEm);
+    }
+    if (!nullToAbsent || sincronizadoEm != null) {
+      map['sincronizado_em'] = Variable<DateTime>(sincronizadoEm);
+    }
+    map['id'] = Variable<String>(id);
+    map['sugestao_carga_menor'] = Variable<bool>(sugestaoCargaMenor);
+    map['modo_novo_zero'] = Variable<String>(modoNovoZero);
+    return map;
+  }
+
+  PreferenciasCompanion toCompanion(bool nullToAbsent) {
+    return PreferenciasCompanion(
+      atualizadoEm: Value(atualizadoEm),
+      excluidoEm: excluidoEm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(excluidoEm),
+      sincronizadoEm: sincronizadoEm == null && nullToAbsent
+          ? const Value.absent()
+          : Value(sincronizadoEm),
+      id: Value(id),
+      sugestaoCargaMenor: Value(sugestaoCargaMenor),
+      modoNovoZero: Value(modoNovoZero),
+    );
+  }
+
+  factory Preferencia.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return Preferencia(
+      atualizadoEm: serializer.fromJson<DateTime>(json['atualizadoEm']),
+      excluidoEm: serializer.fromJson<DateTime?>(json['excluidoEm']),
+      sincronizadoEm: serializer.fromJson<DateTime?>(json['sincronizadoEm']),
+      id: serializer.fromJson<String>(json['id']),
+      sugestaoCargaMenor: serializer.fromJson<bool>(json['sugestaoCargaMenor']),
+      modoNovoZero: serializer.fromJson<String>(json['modoNovoZero']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'atualizadoEm': serializer.toJson<DateTime>(atualizadoEm),
+      'excluidoEm': serializer.toJson<DateTime?>(excluidoEm),
+      'sincronizadoEm': serializer.toJson<DateTime?>(sincronizadoEm),
+      'id': serializer.toJson<String>(id),
+      'sugestaoCargaMenor': serializer.toJson<bool>(sugestaoCargaMenor),
+      'modoNovoZero': serializer.toJson<String>(modoNovoZero),
+    };
+  }
+
+  Preferencia copyWith({
+    DateTime? atualizadoEm,
+    Value<DateTime?> excluidoEm = const Value.absent(),
+    Value<DateTime?> sincronizadoEm = const Value.absent(),
+    String? id,
+    bool? sugestaoCargaMenor,
+    String? modoNovoZero,
+  }) => Preferencia(
+    atualizadoEm: atualizadoEm ?? this.atualizadoEm,
+    excluidoEm: excluidoEm.present ? excluidoEm.value : this.excluidoEm,
+    sincronizadoEm: sincronizadoEm.present
+        ? sincronizadoEm.value
+        : this.sincronizadoEm,
+    id: id ?? this.id,
+    sugestaoCargaMenor: sugestaoCargaMenor ?? this.sugestaoCargaMenor,
+    modoNovoZero: modoNovoZero ?? this.modoNovoZero,
+  );
+  Preferencia copyWithCompanion(PreferenciasCompanion data) {
+    return Preferencia(
+      atualizadoEm: data.atualizadoEm.present
+          ? data.atualizadoEm.value
+          : this.atualizadoEm,
+      excluidoEm: data.excluidoEm.present
+          ? data.excluidoEm.value
+          : this.excluidoEm,
+      sincronizadoEm: data.sincronizadoEm.present
+          ? data.sincronizadoEm.value
+          : this.sincronizadoEm,
+      id: data.id.present ? data.id.value : this.id,
+      sugestaoCargaMenor: data.sugestaoCargaMenor.present
+          ? data.sugestaoCargaMenor.value
+          : this.sugestaoCargaMenor,
+      modoNovoZero: data.modoNovoZero.present
+          ? data.modoNovoZero.value
+          : this.modoNovoZero,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('Preferencia(')
+          ..write('atualizadoEm: $atualizadoEm, ')
+          ..write('excluidoEm: $excluidoEm, ')
+          ..write('sincronizadoEm: $sincronizadoEm, ')
+          ..write('id: $id, ')
+          ..write('sugestaoCargaMenor: $sugestaoCargaMenor, ')
+          ..write('modoNovoZero: $modoNovoZero')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(
+    atualizadoEm,
+    excluidoEm,
+    sincronizadoEm,
+    id,
+    sugestaoCargaMenor,
+    modoNovoZero,
+  );
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is Preferencia &&
+          other.atualizadoEm == this.atualizadoEm &&
+          other.excluidoEm == this.excluidoEm &&
+          other.sincronizadoEm == this.sincronizadoEm &&
+          other.id == this.id &&
+          other.sugestaoCargaMenor == this.sugestaoCargaMenor &&
+          other.modoNovoZero == this.modoNovoZero);
+}
+
+class PreferenciasCompanion extends UpdateCompanion<Preferencia> {
+  final Value<DateTime> atualizadoEm;
+  final Value<DateTime?> excluidoEm;
+  final Value<DateTime?> sincronizadoEm;
+  final Value<String> id;
+  final Value<bool> sugestaoCargaMenor;
+  final Value<String> modoNovoZero;
+  final Value<int> rowid;
+  const PreferenciasCompanion({
+    this.atualizadoEm = const Value.absent(),
+    this.excluidoEm = const Value.absent(),
+    this.sincronizadoEm = const Value.absent(),
+    this.id = const Value.absent(),
+    this.sugestaoCargaMenor = const Value.absent(),
+    this.modoNovoZero = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  PreferenciasCompanion.insert({
+    this.atualizadoEm = const Value.absent(),
+    this.excluidoEm = const Value.absent(),
+    this.sincronizadoEm = const Value.absent(),
+    required String id,
+    this.sugestaoCargaMenor = const Value.absent(),
+    this.modoNovoZero = const Value.absent(),
+    this.rowid = const Value.absent(),
+  }) : id = Value(id);
+  static Insertable<Preferencia> custom({
+    Expression<DateTime>? atualizadoEm,
+    Expression<DateTime>? excluidoEm,
+    Expression<DateTime>? sincronizadoEm,
+    Expression<String>? id,
+    Expression<bool>? sugestaoCargaMenor,
+    Expression<String>? modoNovoZero,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (atualizadoEm != null) 'atualizado_em': atualizadoEm,
+      if (excluidoEm != null) 'excluido_em': excluidoEm,
+      if (sincronizadoEm != null) 'sincronizado_em': sincronizadoEm,
+      if (id != null) 'id': id,
+      if (sugestaoCargaMenor != null)
+        'sugestao_carga_menor': sugestaoCargaMenor,
+      if (modoNovoZero != null) 'modo_novo_zero': modoNovoZero,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  PreferenciasCompanion copyWith({
+    Value<DateTime>? atualizadoEm,
+    Value<DateTime?>? excluidoEm,
+    Value<DateTime?>? sincronizadoEm,
+    Value<String>? id,
+    Value<bool>? sugestaoCargaMenor,
+    Value<String>? modoNovoZero,
+    Value<int>? rowid,
+  }) {
+    return PreferenciasCompanion(
+      atualizadoEm: atualizadoEm ?? this.atualizadoEm,
+      excluidoEm: excluidoEm ?? this.excluidoEm,
+      sincronizadoEm: sincronizadoEm ?? this.sincronizadoEm,
+      id: id ?? this.id,
+      sugestaoCargaMenor: sugestaoCargaMenor ?? this.sugestaoCargaMenor,
+      modoNovoZero: modoNovoZero ?? this.modoNovoZero,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (atualizadoEm.present) {
+      map['atualizado_em'] = Variable<DateTime>(atualizadoEm.value);
+    }
+    if (excluidoEm.present) {
+      map['excluido_em'] = Variable<DateTime>(excluidoEm.value);
+    }
+    if (sincronizadoEm.present) {
+      map['sincronizado_em'] = Variable<DateTime>(sincronizadoEm.value);
+    }
+    if (id.present) {
+      map['id'] = Variable<String>(id.value);
+    }
+    if (sugestaoCargaMenor.present) {
+      map['sugestao_carga_menor'] = Variable<bool>(sugestaoCargaMenor.value);
+    }
+    if (modoNovoZero.present) {
+      map['modo_novo_zero'] = Variable<String>(modoNovoZero.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('PreferenciasCompanion(')
+          ..write('atualizadoEm: $atualizadoEm, ')
+          ..write('excluidoEm: $excluidoEm, ')
+          ..write('sincronizadoEm: $sincronizadoEm, ')
+          ..write('id: $id, ')
+          ..write('sugestaoCargaMenor: $sugestaoCargaMenor, ')
+          ..write('modoNovoZero: $modoNovoZero, ')
           ..write('rowid: $rowid')
           ..write(')'))
         .toString();
@@ -5476,6 +6157,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
   late final $AjustesExecucaoTable ajustesExecucao = $AjustesExecucaoTable(
     this,
   );
+  late final $PreferenciasTable preferencias = $PreferenciasTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -5489,6 +6171,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     series,
     substituicoes,
     ajustesExecucao,
+    preferencias,
   ];
   @override
   DriftDatabaseOptions get options =>
@@ -8051,6 +8734,8 @@ typedef $$TreinosTableCreateCompanionBuilder = TreinosCompanion Function({
   Value<DateTime?> finalizadoEm,
   Value<String> status,
   Value<String> modo,
+  Value<DateTime?> descansoTerminaEm,
+  Value<String?> descansoSerieId,
   Value<int> rowid,
 });
 typedef $$TreinosTableUpdateCompanionBuilder = TreinosCompanion Function({
@@ -8064,6 +8749,8 @@ typedef $$TreinosTableUpdateCompanionBuilder = TreinosCompanion Function({
   Value<DateTime?> finalizadoEm,
   Value<String> status,
   Value<String> modo,
+  Value<DateTime?> descansoTerminaEm,
+  Value<String?> descansoSerieId,
   Value<int> rowid,
 });
 
@@ -8180,6 +8867,16 @@ class $$TreinosTableFilterComposer
 
   ColumnFilters<String> get modo => $composableBuilder(
     column: $table.modo,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get descansoTerminaEm => $composableBuilder(
+    column: $table.descansoTerminaEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get descansoSerieId => $composableBuilder(
+    column: $table.descansoSerieId,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8311,6 +9008,16 @@ class $$TreinosTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<DateTime> get descansoTerminaEm => $composableBuilder(
+    column: $table.descansoTerminaEm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get descansoSerieId => $composableBuilder(
+    column: $table.descansoSerieId,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$SessoesPlanoTableOrderingComposer get sessaoPlanoId {
     final $$SessoesPlanoTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -8380,6 +9087,16 @@ class $$TreinosTableAnnotationComposer
 
   GeneratedColumn<String> get modo =>
       $composableBuilder(column: $table.modo, builder: (column) => column);
+
+  GeneratedColumn<DateTime> get descansoTerminaEm => $composableBuilder(
+    column: $table.descansoTerminaEm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get descansoSerieId => $composableBuilder(
+    column: $table.descansoSerieId,
+    builder: (column) => column,
+  );
 
   $$SessoesPlanoTableAnnotationComposer get sessaoPlanoId {
     final $$SessoesPlanoTableAnnotationComposer composer = $composerBuilder(
@@ -8497,6 +9214,8 @@ class $$TreinosTableTableManager
                 Value<DateTime?> finalizadoEm = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<String> modo = const Value.absent(),
+                Value<DateTime?> descansoTerminaEm = const Value.absent(),
+                Value<String?> descansoSerieId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TreinosCompanion(
                 atualizadoEm: atualizadoEm,
@@ -8509,6 +9228,8 @@ class $$TreinosTableTableManager
                 finalizadoEm: finalizadoEm,
                 status: status,
                 modo: modo,
+                descansoTerminaEm: descansoTerminaEm,
+                descansoSerieId: descansoSerieId,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -8523,6 +9244,8 @@ class $$TreinosTableTableManager
                 Value<DateTime?> finalizadoEm = const Value.absent(),
                 Value<String> status = const Value.absent(),
                 Value<String> modo = const Value.absent(),
+                Value<DateTime?> descansoTerminaEm = const Value.absent(),
+                Value<String?> descansoSerieId = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => TreinosCompanion.insert(
                 atualizadoEm: atualizadoEm,
@@ -8535,6 +9258,8 @@ class $$TreinosTableTableManager
                 finalizadoEm: finalizadoEm,
                 status: status,
                 modo: modo,
+                descansoTerminaEm: descansoTerminaEm,
+                descansoSerieId: descansoSerieId,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -8671,6 +9396,7 @@ typedef $$SeriesTableCreateCompanionBuilder = SeriesCompanion Function({
   Value<bool> editado,
   Value<bool> dor,
   Value<bool> aquecimento,
+  Value<bool> manterCarga,
   required DateTime registradaEm,
   Value<int> rowid,
 });
@@ -8692,6 +9418,7 @@ typedef $$SeriesTableUpdateCompanionBuilder = SeriesCompanion Function({
   Value<bool> editado,
   Value<bool> dor,
   Value<bool> aquecimento,
+  Value<bool> manterCarga,
   Value<DateTime> registradaEm,
   Value<int> rowid,
 });
@@ -8828,6 +9555,11 @@ class $$SeriesTableFilterComposer
 
   ColumnFilters<bool> get aquecimento => $composableBuilder(
     column: $table.aquecimento,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get manterCarga => $composableBuilder(
+    column: $table.manterCarga,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -8985,6 +9717,11 @@ class $$SeriesTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get manterCarga => $composableBuilder(
+    column: $table.manterCarga,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   ColumnOrderings<DateTime> get registradaEm => $composableBuilder(
     column: $table.registradaEm,
     builder: (column) => ColumnOrderings(column),
@@ -9123,6 +9860,11 @@ class $$SeriesTableAnnotationComposer
     builder: (column) => column,
   );
 
+  GeneratedColumn<bool> get manterCarga => $composableBuilder(
+    column: $table.manterCarga,
+    builder: (column) => column,
+  );
+
   GeneratedColumn<DateTime> get registradaEm => $composableBuilder(
     column: $table.registradaEm,
     builder: (column) => column,
@@ -9247,6 +9989,7 @@ class $$SeriesTableTableManager
                 Value<bool> editado = const Value.absent(),
                 Value<bool> dor = const Value.absent(),
                 Value<bool> aquecimento = const Value.absent(),
+                Value<bool> manterCarga = const Value.absent(),
                 Value<DateTime> registradaEm = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => SeriesCompanion(
@@ -9267,6 +10010,7 @@ class $$SeriesTableTableManager
                 editado: editado,
                 dor: dor,
                 aquecimento: aquecimento,
+                manterCarga: manterCarga,
                 registradaEm: registradaEm,
                 rowid: rowid,
               ),
@@ -9289,6 +10033,7 @@ class $$SeriesTableTableManager
                 Value<bool> editado = const Value.absent(),
                 Value<bool> dor = const Value.absent(),
                 Value<bool> aquecimento = const Value.absent(),
+                Value<bool> manterCarga = const Value.absent(),
                 required DateTime registradaEm,
                 Value<int> rowid = const Value.absent(),
               }) => SeriesCompanion.insert(
@@ -9309,6 +10054,7 @@ class $$SeriesTableTableManager
                 editado: editado,
                 dor: dor,
                 aquecimento: aquecimento,
+                manterCarga: manterCarga,
                 registradaEm: registradaEm,
                 rowid: rowid,
               ),
@@ -9998,6 +10744,7 @@ typedef $$AjustesExecucaoTableCreateCompanionBuilder =
       required String itemPlanoId,
       Value<bool> progressaoPr,
       Value<bool> aquecimento,
+      Value<bool> novoZeroRespondido,
       Value<int> rowid,
     });
 typedef $$AjustesExecucaoTableUpdateCompanionBuilder =
@@ -10010,6 +10757,7 @@ typedef $$AjustesExecucaoTableUpdateCompanionBuilder =
       Value<String> itemPlanoId,
       Value<bool> progressaoPr,
       Value<bool> aquecimento,
+      Value<bool> novoZeroRespondido,
       Value<int> rowid,
     });
 
@@ -10093,6 +10841,11 @@ class $$AjustesExecucaoTableFilterComposer
 
   ColumnFilters<bool> get aquecimento => $composableBuilder(
     column: $table.aquecimento,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get novoZeroRespondido => $composableBuilder(
+    column: $table.novoZeroRespondido,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -10182,6 +10935,11 @@ class $$AjustesExecucaoTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
+  ColumnOrderings<bool> get novoZeroRespondido => $composableBuilder(
+    column: $table.novoZeroRespondido,
+    builder: (column) => ColumnOrderings(column),
+  );
+
   $$TreinosTableOrderingComposer get treinoId {
     final $$TreinosTableOrderingComposer composer = $composerBuilder(
       composer: this,
@@ -10263,6 +11021,11 @@ class $$AjustesExecucaoTableAnnotationComposer
 
   GeneratedColumn<bool> get aquecimento => $composableBuilder(
     column: $table.aquecimento,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<bool> get novoZeroRespondido => $composableBuilder(
+    column: $table.novoZeroRespondido,
     builder: (column) => column,
   );
 
@@ -10351,6 +11114,7 @@ class $$AjustesExecucaoTableTableManager
                 Value<String> itemPlanoId = const Value.absent(),
                 Value<bool> progressaoPr = const Value.absent(),
                 Value<bool> aquecimento = const Value.absent(),
+                Value<bool> novoZeroRespondido = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AjustesExecucaoCompanion(
                 atualizadoEm: atualizadoEm,
@@ -10361,6 +11125,7 @@ class $$AjustesExecucaoTableTableManager
                 itemPlanoId: itemPlanoId,
                 progressaoPr: progressaoPr,
                 aquecimento: aquecimento,
+                novoZeroRespondido: novoZeroRespondido,
                 rowid: rowid,
               ),
           createCompanionCallback:
@@ -10373,6 +11138,7 @@ class $$AjustesExecucaoTableTableManager
                 required String itemPlanoId,
                 Value<bool> progressaoPr = const Value.absent(),
                 Value<bool> aquecimento = const Value.absent(),
+                Value<bool> novoZeroRespondido = const Value.absent(),
                 Value<int> rowid = const Value.absent(),
               }) => AjustesExecucaoCompanion.insert(
                 atualizadoEm: atualizadoEm,
@@ -10383,6 +11149,7 @@ class $$AjustesExecucaoTableTableManager
                 itemPlanoId: itemPlanoId,
                 progressaoPr: progressaoPr,
                 aquecimento: aquecimento,
+                novoZeroRespondido: novoZeroRespondido,
                 rowid: rowid,
               ),
           withReferenceMapper: (p0) => p0
@@ -10461,6 +11228,244 @@ typedef $$AjustesExecucaoTableProcessedTableManager =
       AjusteExecucao,
       PrefetchHooks Function({bool treinoId, bool itemPlanoId})
     >;
+typedef $$PreferenciasTableCreateCompanionBuilder =
+    PreferenciasCompanion Function({
+      Value<DateTime> atualizadoEm,
+      Value<DateTime?> excluidoEm,
+      Value<DateTime?> sincronizadoEm,
+      required String id,
+      Value<bool> sugestaoCargaMenor,
+      Value<String> modoNovoZero,
+      Value<int> rowid,
+    });
+typedef $$PreferenciasTableUpdateCompanionBuilder =
+    PreferenciasCompanion Function({
+      Value<DateTime> atualizadoEm,
+      Value<DateTime?> excluidoEm,
+      Value<DateTime?> sincronizadoEm,
+      Value<String> id,
+      Value<bool> sugestaoCargaMenor,
+      Value<String> modoNovoZero,
+      Value<int> rowid,
+    });
+
+class $$PreferenciasTableFilterComposer
+    extends Composer<_$AppDatabase, $PreferenciasTable> {
+  $$PreferenciasTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<DateTime> get atualizadoEm => $composableBuilder(
+    column: $table.atualizadoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get excluidoEm => $composableBuilder(
+    column: $table.excluidoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<DateTime> get sincronizadoEm => $composableBuilder(
+    column: $table.sincronizadoEm,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<bool> get sugestaoCargaMenor => $composableBuilder(
+    column: $table.sugestaoCargaMenor,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get modoNovoZero => $composableBuilder(
+    column: $table.modoNovoZero,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$PreferenciasTableOrderingComposer
+    extends Composer<_$AppDatabase, $PreferenciasTable> {
+  $$PreferenciasTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<DateTime> get atualizadoEm => $composableBuilder(
+    column: $table.atualizadoEm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get excluidoEm => $composableBuilder(
+    column: $table.excluidoEm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<DateTime> get sincronizadoEm => $composableBuilder(
+    column: $table.sincronizadoEm,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get id => $composableBuilder(
+    column: $table.id,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<bool> get sugestaoCargaMenor => $composableBuilder(
+    column: $table.sugestaoCargaMenor,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get modoNovoZero => $composableBuilder(
+    column: $table.modoNovoZero,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$PreferenciasTableAnnotationComposer
+    extends Composer<_$AppDatabase, $PreferenciasTable> {
+  $$PreferenciasTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<DateTime> get atualizadoEm => $composableBuilder(
+    column: $table.atualizadoEm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get excluidoEm => $composableBuilder(
+    column: $table.excluidoEm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<DateTime> get sincronizadoEm => $composableBuilder(
+    column: $table.sincronizadoEm,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get id =>
+      $composableBuilder(column: $table.id, builder: (column) => column);
+
+  GeneratedColumn<bool> get sugestaoCargaMenor => $composableBuilder(
+    column: $table.sugestaoCargaMenor,
+    builder: (column) => column,
+  );
+
+  GeneratedColumn<String> get modoNovoZero => $composableBuilder(
+    column: $table.modoNovoZero,
+    builder: (column) => column,
+  );
+}
+
+class $$PreferenciasTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $PreferenciasTable,
+          Preferencia,
+          $$PreferenciasTableFilterComposer,
+          $$PreferenciasTableOrderingComposer,
+          $$PreferenciasTableAnnotationComposer,
+          $$PreferenciasTableCreateCompanionBuilder,
+          $$PreferenciasTableUpdateCompanionBuilder,
+          (
+            Preferencia,
+            BaseReferences<_$AppDatabase, $PreferenciasTable, Preferencia>,
+          ),
+          Preferencia,
+          PrefetchHooks Function()
+        > {
+  $$PreferenciasTableTableManager(_$AppDatabase db, $PreferenciasTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$PreferenciasTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$PreferenciasTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$PreferenciasTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback:
+              ({
+                Value<DateTime> atualizadoEm = const Value.absent(),
+                Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<DateTime?> sincronizadoEm = const Value.absent(),
+                Value<String> id = const Value.absent(),
+                Value<bool> sugestaoCargaMenor = const Value.absent(),
+                Value<String> modoNovoZero = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PreferenciasCompanion(
+                atualizadoEm: atualizadoEm,
+                excluidoEm: excluidoEm,
+                sincronizadoEm: sincronizadoEm,
+                id: id,
+                sugestaoCargaMenor: sugestaoCargaMenor,
+                modoNovoZero: modoNovoZero,
+                rowid: rowid,
+              ),
+          createCompanionCallback:
+              ({
+                Value<DateTime> atualizadoEm = const Value.absent(),
+                Value<DateTime?> excluidoEm = const Value.absent(),
+                Value<DateTime?> sincronizadoEm = const Value.absent(),
+                required String id,
+                Value<bool> sugestaoCargaMenor = const Value.absent(),
+                Value<String> modoNovoZero = const Value.absent(),
+                Value<int> rowid = const Value.absent(),
+              }) => PreferenciasCompanion.insert(
+                atualizadoEm: atualizadoEm,
+                excluidoEm: excluidoEm,
+                sincronizadoEm: sincronizadoEm,
+                id: id,
+                sugestaoCargaMenor: sugestaoCargaMenor,
+                modoNovoZero: modoNovoZero,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$PreferenciasTable, Preferencia>(table),
+                  BaseReferences<
+                    _$AppDatabase,
+                    $PreferenciasTable,
+                    Preferencia
+                  >(db, table, e),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$PreferenciasTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $PreferenciasTable,
+      Preferencia,
+      $$PreferenciasTableFilterComposer,
+      $$PreferenciasTableOrderingComposer,
+      $$PreferenciasTableAnnotationComposer,
+      $$PreferenciasTableCreateCompanionBuilder,
+      $$PreferenciasTableUpdateCompanionBuilder,
+      (
+        Preferencia,
+        BaseReferences<_$AppDatabase, $PreferenciasTable, Preferencia>,
+      ),
+      Preferencia,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -10481,4 +11486,6 @@ class $AppDatabaseManager {
       $$SubstituicoesTableTableManager(_db, _db.substituicoes);
   $$AjustesExecucaoTableTableManager get ajustesExecucao =>
       $$AjustesExecucaoTableTableManager(_db, _db.ajustesExecucao);
+  $$PreferenciasTableTableManager get preferencias =>
+      $$PreferenciasTableTableManager(_db, _db.preferencias);
 }

@@ -7,6 +7,7 @@ import 'core/widgets/tela_em_construcao.dart';
 import 'features/execucao/tela_resumo.dart';
 import 'features/execucao/tela_serie.dart';
 import 'features/hoje/tela_hoje.dart';
+import 'features/perfil/tela_perfil.dart';
 
 GoRouter criarRouter() {
   return GoRouter(
@@ -53,11 +54,7 @@ GoRouter criarRouter() {
           ),
           StatefulShellBranch(
             routes: [
-              GoRoute(
-                path: '/perfil',
-                builder: (_, _) =>
-                    const TelaEmConstrucao(titulo: 'Perfil', etapa: 'etapa 5'),
-              ),
+              GoRoute(path: '/perfil', builder: (_, _) => const TelaPerfil()),
             ],
           ),
         ],

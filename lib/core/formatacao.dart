@@ -18,6 +18,11 @@ String formatarVolume(double kg) {
   return grupos.join('.');
 }
 
+/// "08/11".
+String formatarData(DateTime data) =>
+    '${data.day.toString().padLeft(2, '0')}/'
+    '${data.month.toString().padLeft(2, '0')}';
+
 /// 0.5 → "50%".
 String formatarPercentual(double fracao) => '${(fracao * 100).round()}%';
 

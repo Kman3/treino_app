@@ -11,6 +11,7 @@ import '../progressao/progressao.dart';
 import 'estado_execucao.dart';
 import 'painel_alterar.dart';
 import 'sessao_treino_controller.dart';
+import 'tela_descanso.dart';
 
 /// Tela 02A Série: carga × reps planejadas em destaque e registro em 1 toque.
 class TelaSerie extends ConsumerStatefulWidget {
@@ -61,6 +62,32 @@ class _TelaSerieState extends ConsumerState<TelaSerie> {
                 );
               }
               final posicao = e.atual;
+              final serieDescanso = e.serieDoDescanso;
+              if (serieDescanso != null) {
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    _Cabecalho(
+                      estado: e,
+                      aoPausar: _confirmarPausa,
+                      aoEncerrar: () => _confirmarEncerrar(e),
+                    ),
+                    Expanded(
+                      child: VistaDescanso(
+                        key: ValueKey(serieDescanso.id),
+                        estado: e,
+                        controller: _controller,
+                        avisar: (texto, {required duracao, acao}) => _avisar(
+                          texto,
+                          duracao: duracao,
+                          acao: acao,
+                          noTopo: true,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
               return Column(
                 crossAxisAlignment: CrossAxisAlignment.stretch,
                 children: [
@@ -134,9 +161,29 @@ class _TelaSerieState extends ConsumerState<TelaSerie> {
     final aquecimento = estado.aquecimentoDoItem(item.item.id);
     final percentual = posicao.percentual;
 
+    final prAtual = estado.prAtualDe(item);
+    final gatilho = posicao.aquecimento
+        ? null
+        : estado.serieQueSugeriu(item, posicao.numero);
+
     return ListView(
       padding: const EdgeInsets.symmetric(horizontal: Espacos.l),
       children: [
+        for (final pr in estado.novosPrPendentes) ...[
+          const SizedBox(height: Espacos.l),
+          CartaoNovoPr(
+            pr: pr,
+            modo: estado.modoNovoZero,
+            aoDecidir: (carga) => decidirNovoZero(
+              _controller,
+              estado,
+              pr,
+              carga,
+              (texto, {required duracao, acao}) =>
+                  _avisar(texto, duracao: duracao, acao: acao),
+            ),
+          ),
+        ],
         const SizedBox(height: Espacos.l),
         Text(item.exercicio.nome, style: Textos.nome.copyWith(fontSize: 24)),
         const SizedBox(height: Espacos.xs),
@@ -168,6 +215,20 @@ class _TelaSerieState extends ConsumerState<TelaSerie> {
           textAlign: TextAlign.center,
           style: Textos.rotulo,
         ),
+        if (prAtual != null && !posicao.aquecimento) ...[
+          const SizedBox(height: Espacos.xs),
+          Text(
+            'PR ATUAL · ${formatarKg(prAtual)} KG',
+            textAlign: TextAlign.center,
+            style: Textos.rotulo.copyWith(color: Cores.avanco),
+          ),
+        ],
+        if (gatilho != null)
+          _AvisoCargaMenor(
+            gatilho: gatilho,
+            cargaPlano: item.item.cargaPlanKg!,
+            aoManter: () => _manterCarga(gatilho),
+          ),
         const SizedBox(height: Espacos.l),
         ..._opcoes(estado, posicao),
         if (estado.prAtivo(item)) _EscadaPr(estado: estado, posicao: posicao),
@@ -351,12 +412,19 @@ class _TelaSerieState extends ConsumerState<TelaSerie> {
   }
 
   /// Aviso flutuando acima dos botões de baixo, para não bloquear o
-  /// "Registrar série" enquanto aparece.
+  /// "Registrar série" enquanto aparece. Com [noTopo] (no descanso), fica logo
+  /// abaixo do cabeçalho, para não cobrir o painel "Como foi?".
   void _avisar(
     String texto, {
     required Duration duracao,
     SnackBarAction? acao,
+    bool noTopo = false,
   }) {
+    final tela = MediaQuery.sizeOf(context).height;
+    final topo = MediaQuery.paddingOf(context).top;
+    final baixo = noTopo
+        ? (tela - topo - _alturaCabecalho - _alturaAviso).clamp(0.0, tela)
+        : _alturaBotoes + Espacos.s;
     ScaffoldMessenger.of(context)
       ..hideCurrentSnackBar()
       ..showSnackBar(
@@ -365,14 +433,26 @@ class _TelaSerieState extends ConsumerState<TelaSerie> {
           duration: duracao,
           persist: false,
           action: acao,
-          margin: const EdgeInsets.fromLTRB(
-            Espacos.l,
-            0,
-            Espacos.l,
-            _alturaBotoes + Espacos.s,
-          ),
+          margin: EdgeInsets.fromLTRB(Espacos.l, 0, Espacos.l, baixo),
         ),
       );
+  }
+
+  static const _alturaCabecalho = 110.0;
+  static const _alturaAviso = 60.0;
+
+  Future<void> _manterCarga(Serie gatilho) async {
+    await _controller.manterCarga(gatilho, manter: true);
+    if (!mounted) return;
+    _avisar(
+      'Carga do plano mantida',
+      duracao: const Duration(seconds: 5),
+      acao: SnackBarAction(
+        label: 'Desfazer',
+        textColor: Cores.brasa,
+        onPressed: () => _controller.manterCarga(gatilho, manter: false),
+      ),
+    );
   }
 
   /// Botão de 50 px com as margens da linha de botões.
@@ -406,9 +486,11 @@ class _TelaSerieState extends ConsumerState<TelaSerie> {
         _alterados = null;
         _chaveAlterados = null;
       });
+      // O descanso abre logo em seguida: o aviso vai para o topo.
       _avisar(
         posicao.aquecimento ? 'Aquecimento registrado' : 'Série registrada',
         duracao: const Duration(seconds: 5),
+        noTopo: true,
         acao: SnackBarAction(
           label: 'Desfazer',
           textColor: Cores.brasa,
@@ -421,7 +503,7 @@ class _TelaSerieState extends ConsumerState<TelaSerie> {
   }
 
   Future<void> _finalizar(EstadoExecucao estado) async {
-    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    ScaffoldMessenger.of(context).removeCurrentSnackBar();
     await _controller.finalizar(estado);
     if (mounted) context.go('/resumo/${estado.treino.id}');
   }
@@ -450,7 +532,7 @@ class _TelaSerieState extends ConsumerState<TelaSerie> {
       ),
     );
     if (pausar == true && mounted) {
-      ScaffoldMessenger.of(context).hideCurrentSnackBar();
+      ScaffoldMessenger.of(context).removeCurrentSnackBar();
       context.go('/treino');
     }
   }
@@ -585,6 +667,47 @@ class _Cabecalho extends StatelessWidget {
           ),
         ),
       ],
+    );
+  }
+}
+
+/// "Carga menor sugerida" na 02A, com a opção de manter a carga do plano.
+class _AvisoCargaMenor extends StatelessWidget {
+  const _AvisoCargaMenor({
+    required this.gatilho,
+    required this.cargaPlano,
+    required this.aoManter,
+  });
+
+  final Serie gatilho;
+  final double cargaPlano;
+  final VoidCallback aoManter;
+
+  @override
+  Widget build(BuildContext context) {
+    final motivo = gatilho.rir == 0
+        ? 'a série ${gatilho.numero} foi no limite'
+        : 'faltaram reps na série ${gatilho.numero}';
+    return Padding(
+      padding: const EdgeInsets.only(top: Espacos.s),
+      child: Column(
+        children: [
+          Text(
+            'CARGA MENOR SUGERIDA: $motivo'.toUpperCase(),
+            textAlign: TextAlign.center,
+            style: Textos.rotulo.copyWith(color: Cores.atencao),
+          ),
+          SizedBox(
+            height: 48,
+            child: TextButton(
+              onPressed: aoManter,
+              child: Text(
+                'Manter ${formatarKg(gatilho.cargaKg ?? cargaPlano)} kg',
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

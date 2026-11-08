@@ -6,10 +6,12 @@ plugins {
 
 android {
     namespace = "com.kman3.treino_app"
-    compileSdk = flutter.compileSdkVersion
+    // flutter_local_notifications 23 exige compileSdk 37 e desugaring.
+    compileSdk = maxOf(flutter.compileSdkVersion, 37)
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
+        isCoreLibraryDesugaringEnabled = true
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
     }
@@ -46,4 +48,8 @@ kotlin {
 
 flutter {
     source = "../.."
+}
+
+dependencies {
+    coreLibraryDesugaring("com.android.tools:desugar_jdk_libs:2.1.4")
 }

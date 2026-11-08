@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Fundo do ícone adaptativo: Ferro 900 do tema Ferro & Giz. -->
+    <color name="ic_launcher_background">#0E0F11</color>
+
+    <!-- Halter "fitness_center" dos Material Icons (24 × 24), o mesmo da aba
+         Treino. Usado no ícone do app e no da notificação. -->
+    <string name="caminho_halter" translatable="false">M20.57,14.86L22,13.43 20.57,12 17,15.57 8.43,7 12,3.43 10.57,2 9.14,3.43 7.71,2 5.57,4.14 4.14,2.71 2.71,4.14l1.43,1.43L2,7.71l1.43,1.43L2,10.57 3.43,12 7,8.43 15.57,17 12,20.57 13.43,22l1.43,-1.43L16.29,22l2.14,-2.14 1.43,1.43 1.43,-1.43 -1.43,-1.43L22,16.29z</string>
+</resources>
