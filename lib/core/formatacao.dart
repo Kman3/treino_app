@@ -23,6 +23,23 @@ String formatarData(DateTime data) =>
     '${data.day.toString().padLeft(2, '0')}/'
     '${data.month.toString().padLeft(2, '0')}';
 
+/// "hoje, 14:32", "ontem, 09:05" ou "06/11, 18:40".
+String formatarMomento(DateTime quando, DateTime agora) {
+  final hora =
+      '${quando.hour.toString().padLeft(2, '0')}:'
+      '${quando.minute.toString().padLeft(2, '0')}';
+  final dias = DateTime(
+    agora.year,
+    agora.month,
+    agora.day,
+  ).difference(DateTime(quando.year, quando.month, quando.day)).inDays;
+  return switch (dias) {
+    0 => 'hoje, $hora',
+    1 => 'ontem, $hora',
+    _ => '${formatarData(quando)}, $hora',
+  };
+}
+
 /// 0.5 → "50%".
 String formatarPercentual(double fracao) => '${(fracao * 100).round()}%';
 

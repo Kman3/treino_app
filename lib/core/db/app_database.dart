@@ -20,6 +20,7 @@ part 'app_database.g.dart';
     Substituicoes,
     AjustesExecucao,
     Preferencias,
+    EstadosSync,
   ],
 )
 class AppDatabase extends _$AppDatabase {
@@ -33,8 +34,9 @@ class AppDatabase extends _$AppDatabase {
   ///    `ajustes_execucao.novo_zero_respondido` e `preferencias`.
   /// 4: troca de exercício por treino ou para sempre (`substituicoes`) e
   ///    "Senti dor" (`ajustes_execucao.removido` e `.dor`).
+  /// 5: `estados_sync`, o estado do backup no Supabase neste aparelho.
   @override
-  int get schemaVersion => 4;
+  int get schemaVersion => 5;
 
   /// Emite ao ouvir e de novo sempre que alguma das [tabelas] muda.
   ///
@@ -76,6 +78,9 @@ class AppDatabase extends _$AppDatabase {
         final ajustes = esquema.ajustesExecucao;
         await m.addColumn(ajustes, ajustes.removido);
         await m.addColumn(ajustes, ajustes.dor);
+      },
+      from4To5: (m, esquema) async {
+        await m.createTable(esquema.estadosSync);
       },
     ),
     beforeOpen: (details) async {

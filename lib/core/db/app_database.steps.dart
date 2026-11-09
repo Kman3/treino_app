@@ -1539,10 +1539,274 @@ i1.GeneratedColumn<int> _column_60(String aliasedName) =>
       $customConstraints: 'NOT NULL DEFAULT 0 CHECK (removido IN (0, 1))',
       defaultValue: const i1.CustomExpression('0'),
     );
+
+final class Schema5 extends i0.VersionedSchema {
+  Schema5({required super.database}) : super(version: 5);
+  @override
+  late final List<i1.DatabaseSchemaEntity> entities = [
+    exercicios,
+    planosTreino,
+    sessoesPlano,
+    itensPlano,
+    treinos,
+    series,
+    substituicoes,
+    ajustesExecucao,
+    preferencias,
+    estadosSync,
+  ];
+  late final Shape0 exercicios = Shape0(
+    source: i0.VersionedTable(
+      entityName: 'exercicios',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_0,
+        _column_1,
+        _column_2,
+        _column_3,
+        _column_4,
+        _column_5,
+        _column_6,
+        _column_7,
+        _column_8,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape1 planosTreino = Shape1(
+    source: i0.VersionedTable(
+      entityName: 'planos_treino',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_0,
+        _column_12,
+        _column_13,
+        _column_14,
+        _column_15,
+        _column_16,
+        _column_17,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape2 sessoesPlano = Shape2(
+    source: i0.VersionedTable(
+      entityName: 'sessoes_plano',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_0,
+        _column_18,
+        _column_19,
+        _column_20,
+        _column_21,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape3 itensPlano = Shape3(
+    source: i0.VersionedTable(
+      entityName: 'itens_plano',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_0,
+        _column_22,
+        _column_23,
+        _column_21,
+        _column_24,
+        _column_25,
+        _column_26,
+        _column_27,
+        _column_28,
+        _column_29,
+        _column_30,
+        _column_8,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape8 treinos = Shape8(
+    source: i0.VersionedTable(
+      entityName: 'treinos',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_0,
+        _column_12,
+        _column_22,
+        _column_31,
+        _column_32,
+        _column_33,
+        _column_34,
+        _column_52,
+        _column_53,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape9 series = Shape9(
+    source: i0.VersionedTable(
+      entityName: 'series',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_0,
+        _column_35,
+        _column_36,
+        _column_23,
+        _column_37,
+        _column_29,
+        _column_38,
+        _column_39,
+        _column_40,
+        _column_41,
+        _column_42,
+        _column_43,
+        _column_44,
+        _column_45,
+        _column_54,
+        _column_46,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape12 substituicoes = Shape12(
+    source: i0.VersionedTable(
+      entityName: 'substituicoes',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_0,
+        _column_12,
+        _column_47,
+        _column_48,
+        _column_49,
+        _column_50,
+        _column_58,
+        _column_39,
+        _column_59,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape13 ajustesExecucao = Shape13(
+    source: i0.VersionedTable(
+      entityName: 'ajustes_execucao',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)', 'UNIQUE(treino_id, item_plano_id)'],
+      columns: [
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_0,
+        _column_35,
+        _column_47,
+        _column_51,
+        _column_45,
+        _column_55,
+        _column_60,
+        _column_44,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape11 preferencias = Shape11(
+    source: i0.VersionedTable(
+      entityName: 'preferencias',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(id)'],
+      columns: [
+        _column_9,
+        _column_10,
+        _column_11,
+        _column_0,
+        _column_56,
+        _column_57,
+      ],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+  late final Shape14 estadosSync = Shape14(
+    source: i0.VersionedTable(
+      entityName: 'estados_sync',
+      withoutRowId: false,
+      isStrict: false,
+      tableConstraints: ['PRIMARY KEY(chave)'],
+      columns: [_column_61, _column_62],
+      attachedDatabase: database,
+    ),
+    alias: null,
+  );
+}
+
+class Shape14 extends i0.VersionedTable {
+  Shape14({required super.source, required super.alias}) : super.aliased();
+  i1.GeneratedColumn<String> get chave =>
+      columnsByName['chave']! as i1.GeneratedColumn<String>;
+  i1.GeneratedColumn<String> get valor =>
+      columnsByName['valor']! as i1.GeneratedColumn<String>;
+}
+
+i1.GeneratedColumn<String> _column_61(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'chave',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
+i1.GeneratedColumn<String> _column_62(String aliasedName) =>
+    i1.GeneratedColumn<String>(
+      'valor',
+      aliasedName,
+      false,
+      type: i1.DriftSqlType.string,
+      $customConstraints: 'NOT NULL',
+    );
 i0.MigrationStepWithVersion migrationSteps({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
   required Future<void> Function(i1.Migrator m, Schema4 schema) from3To4,
+  required Future<void> Function(i1.Migrator m, Schema5 schema) from4To5,
 }) {
   return (currentVersion, database) async {
     switch (currentVersion) {
@@ -1561,6 +1825,11 @@ i0.MigrationStepWithVersion migrationSteps({
         final migrator = i1.Migrator(database, schema);
         await from3To4(migrator, schema);
         return 4;
+      case 4:
+        final schema = Schema5(database: database);
+        final migrator = i1.Migrator(database, schema);
+        await from4To5(migrator, schema);
+        return 5;
       default:
         throw ArgumentError.value('Unknown migration from $currentVersion');
     }
@@ -1571,10 +1840,12 @@ i1.OnUpgrade stepByStep({
   required Future<void> Function(i1.Migrator m, Schema2 schema) from1To2,
   required Future<void> Function(i1.Migrator m, Schema3 schema) from2To3,
   required Future<void> Function(i1.Migrator m, Schema4 schema) from3To4,
+  required Future<void> Function(i1.Migrator m, Schema5 schema) from4To5,
 }) => i0.VersionedSchema.stepByStepHelper(
   step: migrationSteps(
     from1To2: from1To2,
     from2To3: from2To3,
     from3To4: from3To4,
+    from4To5: from4To5,
   ),
 );

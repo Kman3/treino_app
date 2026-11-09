@@ -225,6 +225,18 @@ class Preferencias extends Table with ColunasSync {
   Set<Column> get primaryKey => {id};
 }
 
+/// Estado do backup neste aparelho (não sobe para a nuvem): até onde cada
+/// tabela já foi baixada, quando foi o último backup e se a restauração do
+/// primeiro login já aconteceu. Versão 5.
+@DataClassName('EstadoSync')
+class EstadosSync extends Table {
+  TextColumn get chave => text()();
+  TextColumn get valor => text()();
+
+  @override
+  Set<Column> get primaryKey => {chave};
+}
+
 /// Origem: botão "Ocupado" (ou "Senti dor" → trocar por outro).
 ///
 /// Escopo `sessao`: vale só no [treinoId]. Escopo `sempre`: o item do plano

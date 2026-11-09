@@ -7,6 +7,7 @@ import '../../core/marca.dart';
 import '../../core/theme/tokens.dart';
 import '../../core/widgets/icone_caramelo.dart';
 import '../progressao/progressao.dart';
+import 'secao_backup.dart';
 
 final preferenciasProvider = StreamProvider.autoDispose<Preferencia>(
   (ref) => ref.watch(preferenciasRepositoryProvider).watch(),
@@ -100,11 +101,7 @@ class TelaPerfil extends ConsumerWidget {
               const SizedBox(height: Espacos.xl),
               const Text('BACKUP', style: Textos.rotulo),
               const SizedBox(height: Espacos.s),
-              const Text(
-                'Login e backup no Supabase chegam na etapa 5. Por enquanto '
-                'tudo fica só neste aparelho.',
-                style: Textos.secundario,
-              ),
+              const SecaoBackup(),
               const SizedBox(height: Espacos.xl),
               const _Sobre(),
             ],

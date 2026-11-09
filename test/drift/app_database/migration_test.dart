@@ -31,7 +31,7 @@ void main() {
     }
   });
 
-  test('v2 → v4 mantém séries e ajustes e cria as preferências', () async {
+  test('v2 → v5 mantém séries e ajustes e cria as preferências', () async {
     final esquema = await verificador.schemaAt(2);
     final sql = esquema.rawDatabase;
     const agora = '2026-11-08T07:00:00.000';
@@ -70,7 +70,7 @@ void main() {
       );
 
     final db = AppDatabase(esquema.newConnection());
-    await verificador.migrateAndValidate(db, 4);
+    await verificador.migrateAndValidate(db, 5);
 
     final serie = await db.select(db.series).getSingle();
     expect(serie.cargaKg, 60);
@@ -85,7 +85,7 @@ void main() {
     await db.close();
   });
 
-  test('v3 → v4 mantém trocas e ajustes, com os campos novos vazios', () async {
+  test('v3 → v5 mantém trocas e ajustes, com os campos novos vazios', () async {
     final esquema = await verificador.schemaAt(3);
     final sql = esquema.rawDatabase;
     const agora = '2026-11-08T07:00:00.000';
@@ -125,7 +125,7 @@ void main() {
       );
 
     final db = AppDatabase(esquema.newConnection());
-    await verificador.migrateAndValidate(db, 4);
+    await verificador.migrateAndValidate(db, 5);
 
     final troca = await db.select(db.substituicoes).getSingle();
     expect(troca.exercicioNovoId, 'maquina');
@@ -139,7 +139,7 @@ void main() {
     await db.close();
   });
 
-  test('v1 → v4 mantém treinos e séries já gravados', () async {
+  test('v1 → v5 mantém treinos e séries já gravados', () async {
     final esquema = await verificador.schemaAt(1);
     final sql = esquema.rawDatabase;
     const agora = '2026-11-08T07:00:00.000';
@@ -168,7 +168,7 @@ void main() {
       );
 
     final db = AppDatabase(esquema.newConnection());
-    await verificador.migrateAndValidate(db, 4);
+    await verificador.migrateAndValidate(db, 5);
 
     final serie = await db.select(db.series).getSingle();
     expect(serie.id, 'serie1');

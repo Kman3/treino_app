@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../core/backup/backup_controller.dart';
 import '../../core/db/app_database.dart';
 import '../../core/db/repositorios/plano_repository.dart';
 import '../../core/formatacao.dart';
@@ -648,6 +651,8 @@ class _TelaSerieState extends ConsumerState<TelaSerie> {
   Future<void> _finalizar(EstadoExecucao estado) async {
     ScaffoldMessenger.of(context).removeCurrentSnackBar();
     await _controller.finalizar(estado);
+    // Treino fechado: backup em segundo plano (sem conta, não faz nada).
+    unawaited(ref.read(backupControllerProvider.notifier).sincronizar());
     if (mounted) context.go('/resumo/${estado.treino.id}');
   }
 

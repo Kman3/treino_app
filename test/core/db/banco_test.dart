@@ -30,6 +30,7 @@ void main() {
         'substituicoes',
         'ajustes_execucao',
         'preferencias',
+        'estados_sync',
       ]),
     );
   });

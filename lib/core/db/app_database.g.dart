@@ -6408,6 +6408,214 @@ class PreferenciasCompanion extends UpdateCompanion<Preferencia> {
   }
 }
 
+class $EstadosSyncTable extends EstadosSync
+    with TableInfo<$EstadosSyncTable, EstadoSync> {
+  @override
+  final GeneratedDatabase attachedDatabase;
+  final String? _alias;
+  $EstadosSyncTable(this.attachedDatabase, [this._alias]);
+  static const VerificationMeta _chaveMeta = const VerificationMeta('chave');
+  @override
+  late final GeneratedColumn<String> chave = GeneratedColumn<String>(
+    'chave',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  static const VerificationMeta _valorMeta = const VerificationMeta('valor');
+  @override
+  late final GeneratedColumn<String> valor = GeneratedColumn<String>(
+    'valor',
+    aliasedName,
+    false,
+    type: DriftSqlType.string,
+    requiredDuringInsert: true,
+  );
+  @override
+  List<GeneratedColumn> get $columns => [chave, valor];
+  @override
+  String get aliasedName => _alias ?? actualTableName;
+  @override
+  String get actualTableName => $name;
+  static const String $name = 'estados_sync';
+  @override
+  VerificationContext validateIntegrity(
+    Insertable<EstadoSync> instance, {
+    bool isInserting = false,
+  }) {
+    final context = VerificationContext();
+    final data = instance.toColumns(true);
+    if (data.containsKey('chave')) {
+      context.handle(
+        _chaveMeta,
+        chave.isAcceptableOrUnknown(data['chave']!, _chaveMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_chaveMeta);
+    }
+    if (data.containsKey('valor')) {
+      context.handle(
+        _valorMeta,
+        valor.isAcceptableOrUnknown(data['valor']!, _valorMeta),
+      );
+    } else if (isInserting) {
+      context.missing(_valorMeta);
+    }
+    return context;
+  }
+
+  @override
+  Set<GeneratedColumn> get $primaryKey => {chave};
+  @override
+  EstadoSync map(Map<String, dynamic> data, {String? tablePrefix}) {
+    final effectivePrefix = tablePrefix != null ? '$tablePrefix.' : '';
+    return EstadoSync(
+      chave: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}chave'],
+      )!,
+      valor: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}valor'],
+      )!,
+    );
+  }
+
+  @override
+  $EstadosSyncTable createAlias(String alias) {
+    return $EstadosSyncTable(attachedDatabase, alias);
+  }
+}
+
+class EstadoSync extends DataClass implements Insertable<EstadoSync> {
+  final String chave;
+  final String valor;
+  const EstadoSync({required this.chave, required this.valor});
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    map['chave'] = Variable<String>(chave);
+    map['valor'] = Variable<String>(valor);
+    return map;
+  }
+
+  EstadosSyncCompanion toCompanion(bool nullToAbsent) {
+    return EstadosSyncCompanion(chave: Value(chave), valor: Value(valor));
+  }
+
+  factory EstadoSync.fromJson(
+    Map<String, dynamic> json, {
+    ValueSerializer? serializer,
+  }) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return EstadoSync(
+      chave: serializer.fromJson<String>(json['chave']),
+      valor: serializer.fromJson<String>(json['valor']),
+    );
+  }
+  @override
+  Map<String, dynamic> toJson({ValueSerializer? serializer}) {
+    serializer ??= driftRuntimeOptions.defaultSerializer;
+    return <String, dynamic>{
+      'chave': serializer.toJson<String>(chave),
+      'valor': serializer.toJson<String>(valor),
+    };
+  }
+
+  EstadoSync copyWith({String? chave, String? valor}) =>
+      EstadoSync(chave: chave ?? this.chave, valor: valor ?? this.valor);
+  EstadoSync copyWithCompanion(EstadosSyncCompanion data) {
+    return EstadoSync(
+      chave: data.chave.present ? data.chave.value : this.chave,
+      valor: data.valor.present ? data.valor.value : this.valor,
+    );
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EstadoSync(')
+          ..write('chave: $chave, ')
+          ..write('valor: $valor')
+          ..write(')'))
+        .toString();
+  }
+
+  @override
+  int get hashCode => Object.hash(chave, valor);
+  @override
+  bool operator ==(Object other) =>
+      identical(this, other) ||
+      (other is EstadoSync &&
+          other.chave == this.chave &&
+          other.valor == this.valor);
+}
+
+class EstadosSyncCompanion extends UpdateCompanion<EstadoSync> {
+  final Value<String> chave;
+  final Value<String> valor;
+  final Value<int> rowid;
+  const EstadosSyncCompanion({
+    this.chave = const Value.absent(),
+    this.valor = const Value.absent(),
+    this.rowid = const Value.absent(),
+  });
+  EstadosSyncCompanion.insert({
+    required String chave,
+    required String valor,
+    this.rowid = const Value.absent(),
+  }) : chave = Value(chave),
+       valor = Value(valor);
+  static Insertable<EstadoSync> custom({
+    Expression<String>? chave,
+    Expression<String>? valor,
+    Expression<int>? rowid,
+  }) {
+    return RawValuesInsertable({
+      if (chave != null) 'chave': chave,
+      if (valor != null) 'valor': valor,
+      if (rowid != null) 'rowid': rowid,
+    });
+  }
+
+  EstadosSyncCompanion copyWith({
+    Value<String>? chave,
+    Value<String>? valor,
+    Value<int>? rowid,
+  }) {
+    return EstadosSyncCompanion(
+      chave: chave ?? this.chave,
+      valor: valor ?? this.valor,
+      rowid: rowid ?? this.rowid,
+    );
+  }
+
+  @override
+  Map<String, Expression> toColumns(bool nullToAbsent) {
+    final map = <String, Expression>{};
+    if (chave.present) {
+      map['chave'] = Variable<String>(chave.value);
+    }
+    if (valor.present) {
+      map['valor'] = Variable<String>(valor.value);
+    }
+    if (rowid.present) {
+      map['rowid'] = Variable<int>(rowid.value);
+    }
+    return map;
+  }
+
+  @override
+  String toString() {
+    return (StringBuffer('EstadosSyncCompanion(')
+          ..write('chave: $chave, ')
+          ..write('valor: $valor, ')
+          ..write('rowid: $rowid')
+          ..write(')'))
+        .toString();
+  }
+}
+
 abstract class _$AppDatabase extends GeneratedDatabase {
   _$AppDatabase(QueryExecutor e) : super(e);
   $AppDatabaseManager get managers => $AppDatabaseManager(this);
@@ -6422,6 +6630,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     this,
   );
   late final $PreferenciasTable preferencias = $PreferenciasTable(this);
+  late final $EstadosSyncTable estadosSync = $EstadosSyncTable(this);
   @override
   Iterable<TableInfo<Table, Object?>> get allTables =>
       allSchemaEntities.whereType<TableInfo<Table, Object?>>();
@@ -6436,6 +6645,7 @@ abstract class _$AppDatabase extends GeneratedDatabase {
     substituicoes,
     ajustesExecucao,
     preferencias,
+    estadosSync,
   ];
   @override
   DriftDatabaseOptions get options =>
@@ -12007,6 +12217,153 @@ typedef $$PreferenciasTableProcessedTableManager =
       Preferencia,
       PrefetchHooks Function()
     >;
+typedef $$EstadosSyncTableCreateCompanionBuilder =
+    EstadosSyncCompanion Function({
+      required String chave,
+      required String valor,
+      Value<int> rowid,
+    });
+typedef $$EstadosSyncTableUpdateCompanionBuilder =
+    EstadosSyncCompanion Function({
+      Value<String> chave,
+      Value<String> valor,
+      Value<int> rowid,
+    });
+
+class $$EstadosSyncTableFilterComposer
+    extends Composer<_$AppDatabase, $EstadosSyncTable> {
+  $$EstadosSyncTableFilterComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnFilters<String> get chave => $composableBuilder(
+    column: $table.chave,
+    builder: (column) => ColumnFilters(column),
+  );
+
+  ColumnFilters<String> get valor => $composableBuilder(
+    column: $table.valor,
+    builder: (column) => ColumnFilters(column),
+  );
+}
+
+class $$EstadosSyncTableOrderingComposer
+    extends Composer<_$AppDatabase, $EstadosSyncTable> {
+  $$EstadosSyncTableOrderingComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  ColumnOrderings<String> get chave => $composableBuilder(
+    column: $table.chave,
+    builder: (column) => ColumnOrderings(column),
+  );
+
+  ColumnOrderings<String> get valor => $composableBuilder(
+    column: $table.valor,
+    builder: (column) => ColumnOrderings(column),
+  );
+}
+
+class $$EstadosSyncTableAnnotationComposer
+    extends Composer<_$AppDatabase, $EstadosSyncTable> {
+  $$EstadosSyncTableAnnotationComposer({
+    required super.$db,
+    required super.$table,
+    super.joinBuilder,
+    super.$addJoinBuilderToRootComposer,
+    super.$removeJoinBuilderFromRootComposer,
+  });
+  GeneratedColumn<String> get chave =>
+      $composableBuilder(column: $table.chave, builder: (column) => column);
+
+  GeneratedColumn<String> get valor =>
+      $composableBuilder(column: $table.valor, builder: (column) => column);
+}
+
+class $$EstadosSyncTableTableManager
+    extends
+        RootTableManager<
+          _$AppDatabase,
+          $EstadosSyncTable,
+          EstadoSync,
+          $$EstadosSyncTableFilterComposer,
+          $$EstadosSyncTableOrderingComposer,
+          $$EstadosSyncTableAnnotationComposer,
+          $$EstadosSyncTableCreateCompanionBuilder,
+          $$EstadosSyncTableUpdateCompanionBuilder,
+          (
+            EstadoSync,
+            BaseReferences<_$AppDatabase, $EstadosSyncTable, EstadoSync>,
+          ),
+          EstadoSync,
+          PrefetchHooks Function()
+        > {
+  $$EstadosSyncTableTableManager(_$AppDatabase db, $EstadosSyncTable table)
+    : super(
+        TableManagerState(
+          db: db,
+          table: table,
+          createFilteringComposer: () =>
+              $$EstadosSyncTableFilterComposer($db: db, $table: table),
+          createOrderingComposer: () =>
+              $$EstadosSyncTableOrderingComposer($db: db, $table: table),
+          createComputedFieldComposer: () =>
+              $$EstadosSyncTableAnnotationComposer($db: db, $table: table),
+          updateCompanionCallback: ({
+            Value<String> chave = const Value.absent(),
+            Value<String> valor = const Value.absent(),
+            Value<int> rowid = const Value.absent(),
+          }) => EstadosSyncCompanion(chave: chave, valor: valor, rowid: rowid),
+          createCompanionCallback:
+              ({
+                required String chave,
+                required String valor,
+                Value<int> rowid = const Value.absent(),
+              }) => EstadosSyncCompanion.insert(
+                chave: chave,
+                valor: valor,
+                rowid: rowid,
+              ),
+          withReferenceMapper: (p0) => p0
+              .map(
+                (e) => (
+                  e.readTable<$EstadosSyncTable, EstadoSync>(table),
+                  BaseReferences<_$AppDatabase, $EstadosSyncTable, EstadoSync>(
+                    db,
+                    table,
+                    e,
+                  ),
+                ),
+              )
+              .toList(),
+          prefetchHooksCallback: null,
+        ),
+      );
+}
+
+typedef $$EstadosSyncTableProcessedTableManager =
+    ProcessedTableManager<
+      _$AppDatabase,
+      $EstadosSyncTable,
+      EstadoSync,
+      $$EstadosSyncTableFilterComposer,
+      $$EstadosSyncTableOrderingComposer,
+      $$EstadosSyncTableAnnotationComposer,
+      $$EstadosSyncTableCreateCompanionBuilder,
+      $$EstadosSyncTableUpdateCompanionBuilder,
+      (
+        EstadoSync,
+        BaseReferences<_$AppDatabase, $EstadosSyncTable, EstadoSync>,
+      ),
+      EstadoSync,
+      PrefetchHooks Function()
+    >;
 
 class $AppDatabaseManager {
   final _$AppDatabase _db;
@@ -12029,4 +12386,6 @@ class $AppDatabaseManager {
       $$AjustesExecucaoTableTableManager(_db, _db.ajustesExecucao);
   $$PreferenciasTableTableManager get preferencias =>
       $$PreferenciasTableTableManager(_db, _db.preferencias);
+  $$EstadosSyncTableTableManager get estadosSync =>
+      $$EstadosSyncTableTableManager(_db, _db.estadosSync);
 }
